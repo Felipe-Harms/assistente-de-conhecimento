@@ -1,4 +1,11 @@
-// Upwork Knowledge Assistant — Production UI (REQ-006, REQ-007).
+// Knowledge Assistant — Production UI (REQ-006, REQ-007).
+//
+// i18n: single source of truth. The I18N dictionary at the top of
+// this file holds both pt-BR (default) and en strings. The lang
+// toggle in the header switches between them; the choice persists
+// in localStorage. The translateHtml() call on boot replaces every
+// element with a [data-i18n] attribute and the [data-i18n-attr]
+// attributes for placeholder/aria-label/title.
 //
 // Behaviour summary:
 //   * On boot, fetch `/v1/identity` to learn brand + accent + auth state.
@@ -20,6 +27,257 @@
 (function () {
   "use strict";
 
+  // ----- I18N -----------------------------------------------------------
+  var I18N = {
+    "pt-BR": {
+      locale: "pt-BR",
+      pageTitle: "Assistente de Conhecimento",
+      brandName: "Assistente de Conhecimento",
+      subtitleLoading: "Carregando identidade…",
+      footerNote: "Build de prova local.",
+      langToggleLabel: "EN",
+      langToggleTitle: "Switch to English",
+      authPillRequired: "Auth obrigatório",
+      authPillDisabled: "Auth desativado",
+      authPillAuthenticated: "Autenticado",
+      authToggleLabel: "Configurar token",
+      authPanelTitle: "Token bearer",
+      authPanelDesc: 'A API está configurada com <code>AUTH_ENABLED=true</code>. Cole o token pré-compartilhado; ele é armazenado apenas no localStorage deste navegador e enviado como <code>Authorization: Bearer …</code> em cada requisição.',
+      authSave: "Salvar",
+      authClear: "Limpar",
+      authTokenPlaceholder: "cole o token bearer",
+      authTokenSaved: "Token salvo apenas neste navegador.",
+      authTokenCleared: "Token removido.",
+      askTitle: "Pergunte à base de conhecimento",
+      askDesc: "Escolha uma coleção e faça uma pergunta. O assistente só responde quando o corpus tem evidência de suporte; caso contrário, recusa-se explicitamente.",
+      collectionLabel: "Coleção",
+      collectionLoading: "— carregando —",
+      collectionUnavailable: "— indisponível —",
+      collectionNoCollections: "— sem coleções —",
+      collectionHelp: "Uma coleção é um bucket nomeado de documentos dentro do workspace configurado.",
+      workspaceSummary: "Workspace: ",
+      workspacePlaceholder: "id do workspace (ex.: default)",
+      workspaceApply: "Aplicar",
+      workspaceHelp: "Workspaces diferentes são isolados. A escolha persiste apenas neste navegador.",
+      questionPlaceholder: "O que você gostaria de saber?",
+      askButton: "Perguntar",
+      clearButton: "Limpar",
+      statusLoading: "Carregando identidade…",
+      answerTitle: "Resposta",
+      answerIdle: "Escolha uma coleção, digite uma pergunta e pressione <kbd>Perguntar</kbd>. As respostas vêm com citações que você pode verificar.",
+      answerAsked: "Consultando…",
+      limitsTitle: "Escopo & limites",
+      limitOCR: "Sem OCR, sem tabelas complexas, sem analytics.",
+      limitGrounded: "As respostas são fundamentadas apenas no corpus configurado — recusas são honestas, não palpites.",
+      limitNoPublic: "Sem hospedagem pública, sem monitoramento 24/7, sem precisão perfeita.",
+      limitLossy: "Lembre-se: embeddings são com perdas. Sempre leia as citações.",
+      emptyStateTitle: "Este workspace ainda não tem coleções.",
+      emptyStateDesc: "Você pode escolher outro workspace no seletor abaixo, ou ingerir um documento via a API <code>POST /v1/ingest</code>.",
+      emptyStateStatus: "Este workspace ainda não tem coleções — escolha outro workspace ou ingira via a API.",
+      refusedTitle: "O corpus não tem resposta para esta pergunta.",
+      refusedStatus: "Recusado — o corpus não tem evidência de suporte.",
+      errorTitle: "O assistente não conseguiu responder a esta pergunta.",
+      errorDetail401: "O token bearer configurado não correspondeu.",
+      errorDetailGeneric: "A API não retornou uma resposta utilizável.",
+      errorDetailEmpty: "O servidor respondeu, mas o corpo estava vazio.",
+      errorDetailUnexpected: "Status: ",
+      errorRawLabel: "Detalhes técnicos",
+      errorActionOpenToken: "Abrir configurações de token",
+      errorActionRetry: "Tentar novamente",
+      errorActionRetryCollections: "Recarregar coleções",
+      errorUnauthorized: "Não autorizado — sua requisição foi rejeitada pela API.",
+      errorRequestFailed: "Falha na requisição.",
+      errorEmptyResponse: "A API retornou uma resposta vazia.",
+      errorUnexpected: "Resposta inesperada da API.",
+      errorStatus: "Status:",
+      errorRetryQuestion: "Nada para tentar novamente — digite uma pergunta e pressione Perguntar.",
+      warnPickBoth: "Escolha uma coleção e digite uma pergunta.",
+      warnBadWorkspace: "O id do workspace deve corresponder a [a-zA-Z0-9._-]{1,64}.",
+      statusSwitched: "Workspace alterado para ",
+      statusCleared: "Limpo.",
+      statusReady: "Pronto. Escolha uma coleção e faça uma pergunta.",
+      statusAuthRequired: "Auth obrigatório — defina o token bearer antes de perguntar.",
+      statusFailedIdentity: "Falha ao carregar identidade: ",
+      statusFailedRequest: "Falha na requisição.",
+      statusUnauthorized: "Não autorizado — verifique seu token bearer.",
+      statusCitation: "Respondido com ",
+      statusCitationSuffix: ".",
+      statusRefused: "Recusado — o corpus não tem evidência de suporte.",
+      statusWorkspaceSwitched: "Workspace alterado para ",
+      toggleAuthTitle: "Configurar token",
+      ariaJumpCitation: "Pular para citação ",
+      ariaLangToggle: "Alternar idioma",
+      citationLocPrefix: "seção: ",
+      citationLocPage: "página ",
+      citationLocSep: " · ",
+      citationScore: "score=",
+      citationSnippetMore: "…",
+      collectionsFailed: "Falha ao carregar coleções: ",
+      collectionsFailedTitle: "Falha ao carregar coleções.",
+      collectionsFailedDetail: "O endpoint /v1/collections não respondeu.",
+      overflowSummaryOne: "Mostrar mais 1 citação",
+      overflowSummaryMany: "Mostrar mais ",
+      overflowSummarySuffix: " citações",
+      unknown: "desconhecido",
+    },
+    "en": {
+      locale: "en",
+      pageTitle: "Knowledge Assistant",
+      brandName: "Knowledge Assistant",
+      subtitleLoading: "Loading identity…",
+      footerNote: "Local-only proof build.",
+      langToggleLabel: "PT",
+      langToggleTitle: "Mudar para português",
+      authPillRequired: "Auth required",
+      authPillDisabled: "Auth disabled",
+      authPillAuthenticated: "Authenticated",
+      authToggleLabel: "Configure token",
+      authPanelTitle: "Bearer token",
+      authPanelDesc: 'The API is configured with <code>AUTH_ENABLED=true</code>. Paste the pre-shared token; it is stored only in this browser\'s local storage and sent as <code>Authorization: Bearer …</code> on every request.',
+      authSave: "Save",
+      authClear: "Clear",
+      authTokenPlaceholder: "paste bearer token",
+      authTokenSaved: "Token saved to this browser only.",
+      authTokenCleared: "Token cleared.",
+      askTitle: "Ask the knowledge base",
+      askDesc: "Pick a collection, then ask a question. The assistant will answer only when the corpus has supporting evidence; otherwise it will refuse explicitly.",
+      collectionLabel: "Collection",
+      collectionLoading: "— loading —",
+      collectionUnavailable: "— unavailable —",
+      collectionNoCollections: "— no collections —",
+      collectionHelp: "A collection is a named bucket of documents inside the configured workspace.",
+      workspaceSummary: "Workspace: ",
+      workspacePlaceholder: "workspace id (e.g. default)",
+      workspaceApply: "Apply",
+      workspaceHelp: "Different workspaces are isolated. The choice persists in this browser only.",
+      questionPlaceholder: "What would you like to know?",
+      askButton: "Ask",
+      clearButton: "Clear",
+      statusLoading: "Loading identity…",
+      answerTitle: "Answer",
+      answerIdle: "Pick a collection, type a question, and press <kbd>Ask</kbd>. Answers come with citations you can verify.",
+      answerAsked: "Asking…",
+      limitsTitle: "Scope & limits",
+      limitOCR: "No OCR, no complex tables, no analytics.",
+      limitGrounded: "Answers are grounded in the configured corpus only — refusals are honest, not guesses.",
+      limitNoPublic: "No public hosting, no 24/7 monitoring, no perfect accuracy.",
+      limitLossy: "Bear in mind: embeddings are lossy. Always read the citations.",
+      emptyStateTitle: "This workspace has no collections yet.",
+      emptyStateDesc: "You can pick another workspace from the switcher below, or ingest a document via the <code>POST /v1/ingest</code> API.",
+      emptyStateStatus: "This workspace has no collections yet — pick another workspace or ingest via the API.",
+      refusedTitle: "The corpus has no answer to this question.",
+      refusedStatus: "Refused — corpus has no supporting evidence.",
+      errorTitle: "The assistant could not answer this question.",
+      errorDetail401: "The configured bearer token did not match.",
+      errorDetailGeneric: "The API did not return a usable response.",
+      errorDetailEmpty: "The server replied, but the body was empty.",
+      errorDetailUnexpected: "Status: ",
+      errorRawLabel: "Technical details",
+      errorActionOpenToken: "Open token settings",
+      errorActionRetry: "Retry",
+      errorActionRetryCollections: "Retry collections",
+      errorUnauthorized: "Unauthorized — the API rejected your request.",
+      errorRequestFailed: "Request failed.",
+      errorEmptyResponse: "The API returned an empty response.",
+      errorUnexpected: "Unexpected response from the API.",
+      errorStatus: "Status:",
+      errorRetryQuestion: "Nothing to retry — type a question and press Ask.",
+      warnPickBoth: "Pick a collection and type a question.",
+      warnBadWorkspace: "Workspace id must match [a-zA-Z0-9._-]{1,64}.",
+      statusSwitched: "Workspace switched to ",
+      statusCleared: "Cleared.",
+      statusReady: "Ready. Pick a collection and ask a question.",
+      statusAuthRequired: "Auth required — set the bearer token before querying.",
+      statusFailedIdentity: "Failed to load identity: ",
+      statusFailedRequest: "Request failed.",
+      statusUnauthorized: "Unauthorized — check your bearer token.",
+      statusCitation: "Answered with ",
+      statusCitationSuffix: ".",
+      statusRefused: "Refused — corpus has no supporting evidence.",
+      statusWorkspaceSwitched: "Workspace switched to ",
+      toggleAuthTitle: "Configure token",
+      ariaJumpCitation: "Jump to citation ",
+      ariaLangToggle: "Toggle language",
+      citationLocPrefix: "section: ",
+      citationLocPage: "page ",
+      citationLocSep: " · ",
+      citationScore: "score=",
+      citationSnippetMore: "…",
+      collectionsFailed: "Failed to load collections: ",
+      collectionsFailedTitle: "Failed to load collections.",
+      collectionsFailedDetail: "The /v1/collections endpoint did not respond.",
+      overflowSummaryOne: "Show 1 more citation",
+      overflowSummaryMany: "Show ",
+      overflowSummarySuffix: " more citations",
+      unknown: "unknown",
+    },
+  };
+
+  var LOCALE_KEY = "upworkkb.locale.v1";
+  var DEFAULT_LOCALE = "pt-BR";
+
+  function readLocale() {
+    try {
+      var stored = window.localStorage.getItem(LOCALE_KEY);
+      if (stored && I18N[stored]) return stored;
+    } catch (_e) { /* fall through */ }
+    var html = document.documentElement.getAttribute("lang");
+    if (html && I18N[html]) return html;
+    return DEFAULT_LOCALE;
+  }
+
+  function writeLocale(value) {
+    try {
+      if (value && I18N[value]) {
+        window.localStorage.setItem(LOCALE_KEY, value);
+      }
+    } catch (_e) { /* noop */ }
+  }
+
+  var LOCALE = readLocale();
+
+  function t(key) {
+    var dict = I18N[LOCALE] || I18N[DEFAULT_LOCALE];
+    return (dict && dict[key]) || (I18N[DEFAULT_LOCALE] && I18N[DEFAULT_LOCALE][key]) || key;
+  }
+
+  function setLocale(newLocale) {
+    if (!I18N[newLocale]) return;
+    LOCALE = newLocale;
+    writeLocale(newLocale);
+    document.documentElement.setAttribute("lang", newLocale);
+    applyI18n();
+    // Update the toggle button label.
+    var btn = document.getElementById("lang-toggle");
+    if (btn) {
+      btn.textContent = t("langToggleLabel");
+      btn.setAttribute("title", t("langToggleTitle"));
+      btn.setAttribute("aria-label", t("ariaLangToggle"));
+    }
+    // Re-render identity-driven strings (auth pill, subtitle, etc.)
+    if (state && state.identity) applyIdentity(state.identity);
+    // Re-render the answer card if it has content.
+    if (els && els.answerState) {
+      var s = els.answerState.dataset.state;
+      if (s === "idle") renderIdle();
+      else if (s === "empty") renderEmptyCollection();
+    }
+  }
+
+  function applyI18n() {
+    var nodes = document.querySelectorAll("[data-i18n]");
+    for (var i = 0; i < nodes.length; i++) {
+      var key = nodes[i].getAttribute("data-i18n");
+      var attr = nodes[i].getAttribute("data-i18n-attr");
+      var val = t(key);
+      if (attr) {
+        nodes[i].setAttribute(attr, val);
+      } else {
+        nodes[i].textContent = val;
+      }
+    }
+  }
+
   // ----- DOM ------------------------------------------------------------
   var els = {
     pageTitle:      document.getElementById("page-title"),
@@ -27,6 +285,7 @@
     brandLogo:      document.getElementById("brand-logo"),
     subtitle:       document.getElementById("subtitle"),
     footerNote:     document.getElementById("footer-note"),
+    langToggle:     document.getElementById("lang-toggle"),
     authPill:       document.getElementById("auth-pill"),
     authToggle:     document.getElementById("auth-toggle"),
     authPanel:      document.getElementById("auth-panel"),
@@ -133,9 +392,15 @@
   // rest collapse under "Show N more citation(s)".
   function buildOverflowHtml(extraCitations, totalExtra) {
     if (!extraCitations.length || totalExtra < 1) return "";
+    var summaryHtml;
+    if (totalExtra === 1) {
+      summaryHtml = t("overflowSummaryOne");
+    } else {
+      summaryHtml = t("overflowSummaryMany") + totalExtra + t("overflowSummarySuffix");
+    }
     return (
       '<details class="citations-overflow">' +
-        '<summary>Show ' + pluralize(totalExtra, "more citation", "more citations") + '</summary>' +
+        '<summary>' + escapeHtml(summaryHtml) + '</summary>' +
         '<ol class="citations citations-overflow-list">' +
           extraCitations.join("") +
         '</ol>' +
@@ -241,7 +506,7 @@
   // ----- Renderers ------------------------------------------------------
   function applyIdentity(identity) {
     state.identity = identity;
-    var brandName = escapeText(identity.brand_name || "Upwork Knowledge Assistant");
+    var brandName = escapeText(identity.brand_name || t("brandName"));
     if (els.pageTitle) els.pageTitle.textContent = brandName;
     if (els.brandName) els.brandName.textContent = brandName;
     if (els.subtitle)  els.subtitle.textContent  = identity.tagline || "";
@@ -264,7 +529,7 @@
     var authOn = !!identity.auth_enabled;
     if (els.authPill) {
       els.authPill.hidden = false;
-      els.authPill.textContent = authOn ? "Auth required" : "Auth disabled";
+      els.authPill.textContent = authOn ? t("authPillRequired") : t("authPillDisabled");
       els.authPill.classList.toggle("pill-warn", authOn);
       els.authPill.classList.toggle("pill-muted", !authOn);
     }
@@ -302,7 +567,7 @@
     state.collections = collections || [];
     if (!els.collection) return;
     if (!state.collections.length) {
-      els.collection.innerHTML = '<option value="">— no collections —</option>';
+      els.collection.innerHTML = '<option value="">' + escapeHtml(t("collectionNoCollections")) + '</option>';
       // M-3: actionable empty state when the current workspace has no
       // collections. The pill/placeholder together tell the user the
       // workspace is empty and propose two concrete next steps.
@@ -331,9 +596,8 @@
       els.answer.classList.remove("placeholder", "placeholder-error", "placeholder-refused");
       els.answer.innerHTML = (
         '<p class="empty-state" id="empty-state">' +
-          '<strong>This workspace has no collections yet.</strong> ' +
-          'You can pick another workspace from the switcher below, or ' +
-          'ingest a document via the <code>POST /v1/ingest</code> API.' +
+          '<strong>' + escapeHtml(t("emptyStateTitle")) + '</strong> ' +
+          escapeHtml(t("emptyStateDesc").replace(/^.*?API\./, "").trim() || t("emptyStateDesc").replace(/^You can pick another workspace from the switcher below, or ingest a document via the /, "").replace(/, or ingest.*$/, "") || "You can pick another workspace from the switcher below, or ingest a document via the API.") +
         '</p>'
       );
     }
@@ -342,8 +606,7 @@
       els.citations.innerHTML = "";
     }
     if (els.status) {
-      els.status.textContent =
-        "This workspace has no collections yet — pick another workspace or ingest via the API.";
+      els.status.textContent = t("emptyStateStatus");
       els.status.dataset.kind = "warn";
     }
     // M-3: open the workspace switcher so the user can switch without
@@ -360,9 +623,7 @@
   function renderIdle() {
     setAnswerState("idle");
     els.answer.hidden = false;
-    els.answer.textContent =
-      "Pick a collection, type a question, and press Ask. " +
-      "Answers come with citations you can verify.";
+    els.answer.innerHTML = t("answerIdle");
     els.answer.classList.remove("placeholder-error", "placeholder-refused");
     els.answer.classList.add("placeholder");
     els.citations.hidden = true;
@@ -377,9 +638,9 @@
   // existing callers.
   function renderError(arg) {
     var opts = (arg && typeof arg === "object") ? arg : { raw: arg };
-    var title = opts.title || "The assistant could not answer this question.";
+    var title = opts.title || t("errorTitle");
     var detail = opts.detail || "";
-    var raw = opts.raw || (typeof arg === "string" ? arg : "Request failed.");
+    var raw = opts.raw || (typeof arg === "string" ? arg : t("errorRequestFailed"));
     var actionLabel = opts.actionLabel || "";
     var actionId = opts.actionId || ""; // "open-token-settings" | "retry-query"
     var status = opts.status || "error";
@@ -405,7 +666,7 @@
           (detail ? '<p class="error-banner-detail">' + escapeHtml(detail) + '</p>' : '') +
           actionHtml +
           '<details class="error-banner-raw">' +
-            '<summary>Technical details</summary>' +
+            '<summary>' + escapeHtml(t("errorRawLabel")) + '</summary>' +
             '<pre>' + escapeHtml(raw) + '</pre>' +
           '</details>' +
         '</div>'
@@ -424,7 +685,7 @@
             if (state.lastQuestion) {
               submitQuery();
             } else {
-              setStatus("Nothing to retry — type a question and press Ask.", "warn");
+              setStatus(t("errorRetryQuestion"), "warn");
               if (els.question) els.question.focus();
             }
           } else if (actionId === "retry-collections") {
@@ -451,8 +712,8 @@
       : "—";
     els.answer.hidden = false;
     els.answer.innerHTML =
-      "<strong>The corpus has no answer to this question.</strong> " +
-      "<br><span class=\"muted\">Reason: <code>" + escapeHtml(reason) +
+      "<strong>" + escapeHtml(t("refusedTitle")) + "</strong> " +
+      "<br><span class=\"muted\">" + escapeHtml(t("errorStatus")) + " <code>" + escapeHtml(reason) +
       "</code> · best_score=" + escapeHtml(score) +
       " · threshold=" + escapeHtml(threshold) + "</span>";
     els.answer.classList.remove("placeholder", "placeholder-error");
@@ -482,24 +743,25 @@
     var items = cites.map(function (c, i) {
       var idx = i + 1;
       var loc = [];
-      if (c.section) loc.push("section: " + escapeHtml(c.section));
-      if (c.page != null) loc.push("page " + escapeHtml(String(c.page)));
-      var locStr = loc.length ? loc.join(" · ") : escapeHtml(c.file_name || "");
+      if (c.section) loc.push(t("citationLocPrefix") + escapeHtml(c.section));
+      if (c.page != null) loc.push(t("citationLocPage") + escapeHtml(String(c.page)));
+      var locStr = loc.length ? loc.join(t("citationLocSep")) : escapeHtml(c.file_name || "");
       var score = c.score != null ? Number(c.score).toFixed(4) : "—";
       var snippet = (c.text || "").slice(0, 220);
-      if ((c.text || "").length > 220) snippet += "…";
+      if ((c.text || "").length > 220) snippet += t("citationSnippetMore");
+      var ariaLabel = t("ariaJumpCitation") + idx;
       // M-1: every citation is wrapped in an anchor + given a stable
       // id so the inline `[N]` markers can jump to it. The href is a
       // relative anchor so the link works without network access.
       return (
         '<li id="citation-' + idx + '" class="citation">' +
           '<a class="citation-anchor" href="#citation-' + idx + '" ' +
-               'data-citation-idx="' + idx + '" aria-label="Jump to citation ' + idx + '">' +
+               'data-citation-idx="' + idx + '" aria-label="' + escapeAttr(ariaLabel) + '">' +
             '<div class="citation-head">' +
               '<span class="citation-idx">[' + idx + ']</span>' +
               '<span class="citation-file">' + escapeHtml(c.file_name || "") + '</span>' +
               '<span class="citation-loc">' + locStr + '</span>' +
-              '<span class="citation-score">score=' + score + '</span>' +
+              '<span class="citation-score">' + escapeHtml(t("citationScore")) + score + '</span>' +
             '</div>' +
             '<div class="citation-body">' + escapeHtml(snippet) + '</div>' +
           '</a>' +
@@ -517,10 +779,10 @@
   function render(payload) {
     if (!payload || typeof payload !== "object") {
       renderError({
-        title: "The API returned an empty response.",
-        detail: "The server replied, but the body was empty.",
+        title: t("errorEmptyResponse"),
+        detail: t("errorDetailEmpty"),
         raw: "Empty response from API.",
-        actionLabel: "Retry",
+        actionLabel: t("errorActionRetry"),
         actionId: "retry-query",
       });
       return;
@@ -531,10 +793,10 @@
       renderRefused(payload);
     } else {
       renderError({
-        title: "Unexpected response from the API.",
-        detail: "Status: " + escapeText(payload.status),
+        title: t("errorUnexpected"),
+        detail: t("errorDetailUnexpected") + escapeText(payload.status),
         raw: "Unexpected response status: " + escapeText(payload.status),
-        actionLabel: "Retry",
+        actionLabel: t("errorActionRetry"),
         actionId: "retry-query",
       });
     }
@@ -557,13 +819,13 @@
       "/api/v1/collections?workspace=" + encodeURIComponent(WORKSPACE)
     ).then(renderCollections).catch(function (err) {
       if (els.collection) {
-        els.collection.innerHTML = '<option value="">— unavailable —</option>';
+        els.collection.innerHTML = '<option value="">' + escapeHtml(t("collectionUnavailable")) + '</option>';
       }
       renderError({
-        title: "Failed to load collections.",
-        detail: "The /v1/collections endpoint did not respond.",
-        raw: "Failed to load collections: " + err.message,
-        actionLabel: "Retry",
+        title: t("collectionsFailedTitle"),
+        detail: t("collectionsFailedDetail"),
+        raw: t("collectionsFailed") + err.message,
+        actionLabel: t("errorActionRetryCollections"),
         actionId: "retry-collections",
       });
     });
@@ -572,13 +834,13 @@
   function refreshAuthPill() {
     if (!els.authPill || !state.identity) return;
     if (!state.identity.auth_enabled) {
-      els.authPill.textContent = "Auth disabled";
+      els.authPill.textContent = t("authPillDisabled");
       els.authPill.classList.remove("pill-warn");
       els.authPill.classList.add("pill-muted");
       return;
     }
     var token = readToken();
-    els.authPill.textContent = token ? "Authenticated" : "Auth required";
+    els.authPill.textContent = token ? t("authPillAuthenticated") : t("authPillRequired");
     els.authPill.classList.toggle("pill-warn", !token);
     els.authPill.classList.toggle("pill-ok", !!token);
   }
@@ -588,13 +850,13 @@
     var question = els.question.value.trim();
     var cid = parseInt(els.collection.value, 10);
     if (!question || !cid) {
-      setStatus("Pick a collection and type a question.", "warn");
+      setStatus(t("warnPickBoth"), "warn");
       return;
     }
     state.pending = true;
     state.lastQuestion = { question: question, collection_id: cid };
     refreshAskButton();
-    setStatus("Asking…", "info");
+    setStatus(t("answerAsked"), "info");
     fetchJson("/api/v1/query", {
       method: "POST",
       body: JSON.stringify({
@@ -608,11 +870,11 @@
         render(resp);
         if (resp.status === "answered") {
           setStatus(
-            "Answered with " + pluralize((resp.citations || []).length, "citation") + ".",
+            t("statusCitation") + pluralize((resp.citations || []).length, "citation") + t("statusCitationSuffix"),
             "ok"
           );
         } else if (resp.status === "refused") {
-          setStatus("Refused — corpus has no supporting evidence.", "warn");
+          setStatus(t("statusRefused"), "warn");
         }
       })
       .catch(function (err) {
@@ -620,24 +882,20 @@
         // primary action. 401 → "Open token settings"; everything
         // else (5xx, network) → "Retry".
         var opts = {
-          title: err.status === 401
-            ? "Unauthorized — the API rejected your request."
-            : "Request failed.",
-          detail: err.status === 401
-            ? "The configured bearer token did not match."
-            : "The API did not return a usable response.",
-          raw: err.message || "Request failed.",
+          title: err.status === 401 ? t("errorUnauthorized") : t("errorRequestFailed"),
+          detail: err.status === 401 ? t("errorDetail401") : t("errorDetailGeneric"),
+          raw: err.message || t("errorRequestFailed"),
         };
         if (err.status === 401) {
-          opts.actionLabel = "Open token settings";
+          opts.actionLabel = t("errorActionOpenToken");
           opts.actionId = "open-token-settings";
           opts.status = "401";
-          setStatus("Unauthorized — check your bearer token.", "warn");
+          setStatus(t("statusUnauthorized"), "warn");
         } else {
-          opts.actionLabel = "Retry";
+          opts.actionLabel = t("errorActionRetry");
           opts.actionId = "retry-query";
           opts.status = err.status ? String(err.status) : "network";
-          setStatus("Request failed.", "warn");
+          setStatus(t("statusFailedRequest"), "warn");
         }
         renderError(opts);
       })
@@ -661,7 +919,7 @@
       els.clear.addEventListener("click", function () {
         els.question.value = "";
         renderIdle();
-        setStatus("Cleared.", "info");
+        setStatus(t("statusCleared"), "info");
         refreshAskButton();
         els.question.focus();
       });
@@ -678,7 +936,7 @@
         writeToken(v);
         refreshAuthPill();
         setAuthMsg(
-          v ? "Token saved to this browser only." : "Token cleared.",
+          v ? t("authTokenSaved") : t("authTokenCleared"),
           v ? "ok" : "info"
         );
         // Re-fetch collections with the new credential so the user sees
@@ -691,7 +949,7 @@
         els.authToken.value = "";
         writeToken("");
         refreshAuthPill();
-        setAuthMsg("Token cleared.", "info");
+        setAuthMsg(t("authTokenCleared"), "info");
       });
     }
     // Submit on Ctrl+Enter / Cmd+Enter for ergonomics.
@@ -708,7 +966,7 @@
       els.workspaceApply.addEventListener("click", function () {
         var v = (els.workspaceInput.value || "").trim();
         if (!v || !WORKSPACE_PATTERN.test(v)) {
-          setStatus("Workspace id must match [a-zA-Z0-9._-]{1,64}.", "warn");
+          setStatus(t("warnBadWorkspace"), "warn");
           return;
         }
         writeWorkspace(v);
@@ -716,15 +974,23 @@
         if (els.workspaceCurrent) els.workspaceCurrent.textContent = v;
         document.documentElement.setAttribute("data-workspace", v);
         loadCollections();
-        setStatus("Workspace switched to " + v + ".", "ok");
+        setStatus(t("statusWorkspaceSwitched") + v + t("statusCitationSuffix"), "ok");
+      });
+    }
+    // Language toggle.
+    if (els.langToggle) {
+      els.langToggle.addEventListener("click", function () {
+        var next = LOCALE === "pt-BR" ? "en" : "pt-BR";
+        setLocale(next);
       });
     }
   }
 
   function boot() {
+    applyI18n();
     bindEvents();
     renderIdle();
-    setStatus("Loading identity…", "info");
+    setStatus(t("statusLoading"), "info");
 
     loadIdentity()
       .then(function () {
@@ -741,14 +1007,14 @@
         }
         setStatus(
           state.identity && state.identity.auth_enabled
-            ? "Auth required — set the bearer token before querying."
-            : "Ready. Pick a collection and ask a question.",
+            ? t("statusAuthRequired")
+            : t("statusReady"),
           "ok"
         );
         refreshAskButton();
       })
       .catch(function (err) {
-        setStatus("Failed to load identity: " + (err.message || "unknown"), "warn");
+        setStatus(t("statusFailedIdentity") + (err.message || t("unknown")), "warn");
         // Keep the page usable: the user can still see the static shell.
       })
       .then(function () {
@@ -763,4 +1029,11 @@
   } else {
     boot();
   }
+
+  // Expose a tiny API to the test harness so the E2E suite can deterministically
+  // pin the locale and re-render without depending on click events.
+  window.__KB = window.__KB || {};
+  window.__KB.setLocale = setLocale;
+  window.__KB.t = t;
+  window.__KB.getLocale = function () { return LOCALE; };
 })();
