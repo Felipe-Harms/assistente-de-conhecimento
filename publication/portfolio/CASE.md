@@ -1,103 +1,58 @@
-# RAG-style Knowledge Assistant — Local-First Demo Kit
+# Assistente de Conhecimento Estilo RAG — Kit de Demo Local-First
 
-> A reproduction-ready, citation-grounded answer service that runs on
-> a single `docker compose up` and never touches a credit card. Every
-> answer is grounded in the operator's own corpus, refuses honestly
-> when the evidence is thin, and ships with a deterministic test suite
-> that proves the contract.
+> Um serviço de respostas baseado em citações, pronto para reprodução, que roda com um único `docker compose up` e nunca precisa de cartão de crédito. Cada resposta é fundamentada no corpus do próprio operador, recusa-se honestamente quando a evidência é fraca e vem com uma suíte de testes determinística que comprova o contrato.
+
+🇧🇷 **Esta é a documentação em português (Brasil).** [Read in English →](./CASE.en.md)
 
 ---
 
-## 1. Problem
+## 1. Problema
 
-Client-side teams adopt retrieval-augmented assistants to consolidate
-internal documentation, but the path from "interesting demo" to
-"auditable production" is paved with unspoken trade-offs:
+Equipes do lado do cliente adotam assistentes retrieval-augmented para consolidar documentação interna, mas o caminho de "demo interessante" para "produção auditável" é pavimentado com trade-offs não ditos:
 
-- **Trust.** A language model that can answer *anything* with
-  plausible confidence is a liability in any regulated workflow. The
-  buyer needs to verify the claim by reading the source the answer
-  came from.
-- **Refusal.** When the corpus does not contain the answer, a
-  hallucinated response is worse than no answer. The system must
-  refuse explicitly and say *why* it refused.
-- **Audit.** A demo that produces a nice answer is not enough.
-  Operators must see what the system actually did on each request,
-  with secrets redacted, in a log they can grep.
-- **Reproducibility.** Most RAG stacks drift between runs because the
-  embedding model or the vector index changes underneath. A buyer
-  demo should produce the same answer on the same corpus every time.
-- **Deployment friction.** A managed SaaS solution requires a
-  contract, a connection, a billing relationship, and a security
-  review. Operators who have none of that ready need a local
-  alternative that can be exercised end-to-end on a single machine.
+- **Confiança.** Um modelo de linguagem que pode responder *qualquer coisa* com confiança plausível é um passivo em qualquer fluxo de trabalho regulado. O comprador precisa verificar a alegação lendo a fonte da qual a resposta veio.
+- **Recusa.** Quando o corpus não contém a resposta, uma resposta alucinada é pior do que nenhuma resposta. O sistema deve recusar explicitamente e dizer *por que* recusou.
+- **Auditoria.** Uma demo que produz uma resposta bonita não é suficiente. Operadores precisam ver o que o sistema realmente fez em cada requisição, com segredos redactados, em um log que possam grepar.
+- **Reprodutibilidade.** A maioria das stacks RAG deriva entre execuções porque o modelo de embedding ou o índice vetorial muda por baixo. Uma demo para comprador deve produzir a mesma resposta sobre o mesmo corpus a cada vez.
+- **Fricção de implantação.** Uma solução SaaS gerenciada exige contrato, conexão, relação de cobrança e revisão de segurança. Operadores que não têm nada disso pronto precisam de uma alternativa local que possa ser exercitada ponta a ponta em uma única máquina.
 
-This project demonstrates a small, contained answer to those
-constraints, assembled with off-the-shelf open-source parts and
-validated by a reproducible test suite.
+Este projeto demonstra uma resposta pequena e contida a essas restrições, montada com peças prontas e open-source e validada por uma suíte de testes reproduzível.
 
-## 2. Target public
+## 2. Público-alvo
 
-The intended audience is a small-to-mid delivery team that already
-has a corpus of internal documentation and wants to expose it through
-a chat-style surface without standing up a managed backend:
+O público-alvo são equipes de entrega pequenas e médias que já têm um corpus de documentação interna e querem expô-lo por uma superfície estilo chat, sem levantar um backend gerenciado:
 
-- **Internal support** — a single team that owns a curated knowledge
-  base and wants a low-risk way to pilot "ask the docs" without
-  changing data residency.
-- **Pre-sales audit** — a buyer who needs to walk through the
-  evidence trail end-to-end before approving a pilot.
-- **Service studios** — a fixed-bid delivery team that needs a
-  reference architecture they can adapt without paying an embedding
-  vendor while the proposal is still being written.
+- **Suporte interno** — uma única equipe que possui uma base de conhecimento curada e quer uma forma de baixo risco de pilotar "pergunte aos documentos" sem alterar a residência de dados.
+- **Auditoria pré-vendas** — um comprador que precisa percorrer a trilha de evidências ponta a ponta antes de aprovar um piloto.
+- **Estúdios de serviço** — uma equipe de entrega de preço fixo que precisa de uma arquitetura de referência que possa adaptar sem pagar a um fornecedor de embedding enquanto a proposta ainda está sendo escrita.
 
-It is **not** a consumer-facing chatbot. It is not a multi-tenant
-SaaS. It is not a hosted RAG service. The single-binary promise
-holds only for the local docker-compose story.
+**Não** é um chatbot voltado ao consumidor. Não é um SaaS multi-tenant. Não é um serviço RAG hospedado. A promessa de binário único vale apenas para a história local com docker-compose.
 
-## 3. Solution
+## 3. Solução
 
-A four-service stack that runs on a single machine and refuses to
-answer when the corpus does not support it:
+Uma stack de quatro serviços que roda em uma única máquina e se recusa a responder quando o corpus não dá suporte:
 
-- A **static UI** (nginx-served HTML / CSS / vanilla JS) that drives
-  every interaction from the keyboard or a touch screen.
-- A **FastAPI** service that handles identity, collections, queries
-  and citations. Pydantic models enforce strict request validation.
-- A **Postgres + pgvector** store that holds the corpus and the
-  embedding vectors.
-- A **Playwright + pytest** test image that runs the end-to-end
-  browser tests and the deterministic acceptance run.
+- Uma **UI estática** (HTML / CSS / JS vanilla servidos por nginx) que dirige cada interação a partir do teclado ou de uma tela touch.
+- Um serviço **FastAPI** que lida com identidade, coleções, consultas e citações. Modelos Pydantic impõem validação estrita de requisições.
+- Um armazenamento **Postgres + pgvector** que guarda o corpus e os vetores de embedding.
+- Uma imagem de teste **Playwright + pytest** que executa os testes ponta a ponta no navegador e a execução de aceitação determinística.
 
-The UI is built around three honest answer states:
+A UI é construída em torno de três estados honestos de resposta:
 
-- `answered` — the answer text plus a numbered list of citations.
-  Each citation carries the source file, location, cosine score,
-  and a short snippet. Inline `[N]` markers inside the answer body
-  are clickable links that jump to the matching citation card.
-- `refused` — a yellow banner that states *"The corpus has no
-  answer to this question."* and surfaces the computed `best_score`
-  and `threshold` so the operator can audit why.
-- `error` — a red banner with the (already-redacted) error message
-  and a primary action button: *"Open token settings"* on a 401,
-  *"Retry"* on a 5xx or network failure. The raw technical detail
-  lives inside a collapsed `<details>` so it never gets in the way
-  of the friendly headline.
+- `answered` — o texto da resposta mais uma lista numerada de citações. Cada citação carrega o arquivo fonte, localização, score de cosseno e um snippet curto. Marcadores `[N]` inline dentro do corpo da resposta são links clicáveis que pulam para o card de citação correspondente.
+- `refused` — um banner amarelo que afirma *"O corpus não tem resposta para esta pergunta."* e expõe o `best_score` e `threshold` calculados para que o operador possa auditar por quê.
+- `error` — um banner vermelho com a mensagem de erro (já redactada) e um botão de ação primária: *"Abrir configurações de token"* em um 401, *"Tentar novamente"* em um 5xx ou falha de rede. O detalhe técnico bruto vive dentro de um `<details>` colapsado para nunca atrapalhar o título amigável.
 
-The fourth state — empty workspace — is surfaced as an actionable
-placeholder rather than a dead-end: the user is told the workspace
-has no collections and is offered two concrete next steps (switch
-workspace from the disclosure that auto-opens, or ingest via the
-documented API).
+O quarto estado — workspace vazio — é apresentado como um placeholder acionável em vez de um beco sem saída: o usuário é informado de que o workspace não tem coleções e recebe duas próximas etapas concretas (trocar de workspace pelo disclosure que abre automaticamente, ou ingerir via a API documentada).
 
-## 4. Architecture and stack
+## 4. Arquitetura e stack
 
 ```
-                host browser
+                navegador host
                      │  :8080
                      ▼
              ┌───────────────┐
-             │  ui (nginx)   │  static HTML/CSS/JS
+             │  ui (nginx)   │  HTML/CSS/JS estáticos
              └───────┬───────┘
                      │  /api/* →  api:8000
                      ▼
@@ -112,231 +67,143 @@ documented API).
 
              ┌───────────────┐
              │  test         │  pytest + Playwright / Chromium
-             │ (run --rm)    │  on demand; not part of `up`
+             │ (run --rm)    │  sob demanda; não faz parte de `up`
              └───────────────┘
 ```
 
-| Component | Choice | Why |
-|-----------|--------|-----|
-| API runtime | Python 3.12 + FastAPI + Pydantic | Strict request validation with `extra="forbid"`, length caps, NUL-byte rejection. |
-| Vector store | PostgreSQL 16 + pgvector | One binary, one backup target, a real `pg_dump` story. No separate vector DB to operate. |
-| UI | nginx + vanilla JS | No build step, no framework lock-in, no supply chain. The whole bundle is < 50 KB. |
-| Auth | Configurable Bearer-token gate | `secrets.compare_digest` comparison, fails closed. `/healthz` and `/readyz` are always public. |
-| Embeddings | Deterministic local stub | Hashes each input to a unit-norm 1536-d vector. The test suite is reproducible and free of paid credentials. A vendor adapter is pluggable (`EMBEDDING_STUB=false`). |
-| Test runner | pytest + Playwright/Chromium | Drives the real browser end-to-end. Each test gets a fresh context so localStorage does not leak between auth cases. |
-| Observability | Structured JSON audit log | One line per request with `rid`, `principal`, `method`, `path`, `status`, `latency_ms` and redacted `extra`. Bearer/skey/JWT/PEM patterns are scrubbed. |
+| Componente | Escolha | Por quê |
+|------------|---------|---------|
+| Runtime da API | Python 3.12 + FastAPI + Pydantic | Validação estrita de requisições com `extra="forbid"`, limites de tamanho, rejeição de bytes NUL. |
+| Armazenamento vetorial | PostgreSQL 16 + pgvector | Um binário, um alvo de backup, uma história real de `pg_dump`. Sem DB vetorial separado para operar. |
+| UI | nginx + JS vanilla | Sem build step, sem lock-in de framework, sem supply chain. O bundle inteiro tem < 50 KB. |
+| Auth | Gate configurável de Bearer-token | Comparação via `secrets.compare_digest`, falha fechado. `/healthz` e `/readyz` são sempre públicos. |
+| Embeddings | Stub local determinístico | Faz hash de cada entrada para um vetor unitário de 1536 dimensões. A suíte de testes é reproduzível e sem credenciais pagas. Um adaptador de fornecedor é plugável (`EMBEDDING_STUB=false`). |
+| Runner de teste | pytest + Playwright/Chromium | Dirige o navegador real ponta a ponta. Cada teste recebe um contexto fresh para que o localStorage não vaze entre casos de auth. |
+| Observabilidade | Log de auditoria JSON estruturado | Uma linha por requisição com `rid`, `principal`, `method`, `path`, `status`, `latency_ms` e `extra` redactado. Padrões Bearer/skey/JWT/PEM são saneados. |
 
-## 5. Key decisions
+## 5. Decisões-chave
 
-- **Three honest states, no silent failures.** The UI never shows a
-  "loading…" that never resolves. The API either answers, refuses, or
-  raises an error — and the UI renders each one explicitly.
-- **Citations are first-class, not an afterthought.** Every answer
-  carries the source file, location, score, and a snippet. The inline
-  `[N]` markers are clickable links that jump to the matching card.
-- **Refusal is a feature.** The corpus is deliberately narrow so the
-  acceptance run can exercise the refusal path. The retrieval
-  threshold (default `0.20`) is exposed in the refusal response so
-  the operator can audit why the system refused.
-- **No vendor lock-in for embeddings.** The stub adapter is
-  deterministic and used by the test suite. Switching to a real
-  provider is a configuration change, not a code change.
-- **Reproducible acceptance.** The 16-question acceptance run is
-  pinned to the shipped corpus and the deterministic stub. The same
-  commit produces the same `results.json` and `results.md`.
-- **Manual retention, not cron.** The shipped package does not run
-  any scheduled cleanup. The retention procedure is documented and
-  requires a backup, a row-count preview, a dry-run, the literal
-  confirmation word `DELETE`, and a post-delete backup.
-- **No public hosting.** The local docker-compose story is the entire
-  deployment story. There is no managed mode, no hosted admin
-  console, no 24/7 monitoring.
+- **Três estados honestos, sem falhas silenciosas.** A UI nunca mostra um "carregando…" que nunca resolve. A API ou responde, recusa, ou levanta um erro — e a UI renderiza cada um explicitamente.
+- **Citações são de primeira classe, não um afterthought.** Cada resposta carrega o arquivo fonte, localização, score e um snippet. Os marcadores `[N]` inline são links clicáveis que pulam para o card correspondente.
+- **Recusa é um recurso.** O corpus é deliberadamente estreito para que a execução de aceitação possa exercitar o caminho de recusa. O limiar de recuperação (padrão `0.20`) é exposto na resposta de recusa para que o operador possa auditar por que o sistema recusou.
+- **Sem lock-in de fornecedor para embeddings.** O adaptador stub é determinístico e usado pela suíte de testes. Trocar para um provedor real é uma mudança de configuração, não de código.
+- **Aceitação reproduzível.** A execução de aceitação de 16 perguntas está fixada ao corpus embarcado e ao stub determinístico. O mesmo commit produz o mesmo `results.json` e `results.md`.
+- **Retenção manual, não cron.** O pacote embarcado não roda nenhuma limpeza agendada. O procedimento de retenção é documentado e exige backup, preview de contagem de linhas, dry-run, a palavra literal de confirmação `DELETE`, e um backup pós-delete.
+- **Sem hospedagem pública.** A história local com docker-compose é toda a história de implantação. Não há modo gerenciado, console admin hospedado, nem monitoramento 24/7.
 
-## 6. Security and isolation
+## 6. Segurança e isolamento
 
-- **Auth gate.** When `AUTH_ENABLED=true` every `/v1/*` request must
-  carry `Authorization: Bearer <token>` matching `AUTH_TOKEN`.
-  Comparison uses `secrets.compare_digest`. `/healthz` and `/readyz`
-  are always public so probes do not need a token.
-- **Input validation.** Every request body flows through Pydantic
-  models with `extra="forbid"`, length caps, and NUL-byte rejection.
-  See `tests/security/test_validation.py`.
-- **Structured audit log.** `app/audit.py` emits one JSON line per
-  request to STDOUT with `rid`, `principal`, `method`, `path`,
-  `status`, `latency_ms`, and redacted `extra`. A conservative
-  scrubber (`scrub`, `scrub_mapping`) removes Bearer/skey/JWT
-  patterns and zeroes out sensitive header keys.
-- **Secret-scanning.** `tests/security/test_secrets.py` walks every
-  text file in the repository and fails if any secret-shaped
-  content (sk-…, JWT, Bearer …, PEM block, AWS access key id) leaks
-  in.
-- **Network isolation.** The DB port is not exposed on the host. The
-  UI is the only service with a published port; only the UI talks
-  to the API through the reverse proxy.
-- **Token in browser localStorage** is a deliberate tradeoff for the
-  static-token gate over `localhost`. A production deployment with
-  a real IdP should swap `api/app/auth.py` for OIDC / OAuth2 and
-  move the token out of `localStorage` (`HttpOnly` cookie + CSRF
-  token). The gate is isolated to one module so the swap is
-  mechanical.
+- **Gate de auth.** Quando `AUTH_ENABLED=true`, cada requisição `/v1/*` deve carregar `Authorization: Bearer <token>` correspondente a `AUTH_TOKEN`. A comparação usa `secrets.compare_digest`. `/healthz` e `/readyz` são sempre públicos para que os probes não precisem de token.
+- **Validação de entrada.** Cada corpo de requisição flui por modelos Pydantic com `extra="forbid"`, limites de tamanho e rejeição de bytes NUL. Veja `tests/security/test_validation.py`.
+- **Log de auditoria estruturado.** `app/audit.py` emite uma linha JSON por requisição para STDOUT com `rid`, `principal`, `method`, `path`, `status`, `latency_ms` e `extra` redactado. Um saneador conservador (`scrub`, `scrub_mapping`) remove padrões Bearer/skey/JWT e zera chaves de header sensíveis.
+- **Varredura de segredos.** `tests/security/test_secrets.py` percorre cada arquivo de texto no repositório e falha se qualquer conteúdo com formato de segredo (sk-…, JWT, Bearer …, bloco PEM, AWS access key id) vazar.
+- **Isolamento de rede.** A porta do DB não é exposta no host. A UI é o único serviço com porta publicada; apenas a UI fala com a API através do reverse proxy.
+- **Token em localStorage do navegador** é uma escolha deliberada para o gate de token estático sobre `localhost`. Uma implantação em produção com um IdP real deve trocar `api/app/auth.py` por OIDC / OAuth2 e mover o token para fora do `localStorage` (cookie `HttpOnly` + token CSRF). O gate está isolado em um único módulo, de modo que a troca é mecânica.
 
-## 7. Verifiable results
+## 7. Resultados verificáveis
 
-The reproduction contract is small and concrete:
+O contrato de reprodução é pequeno e concreto:
 
-| Suite | Count | Command |
-|-------|-------|---------|
-| Security | 70 | `docker compose run --rm test pytest -q tests/security` |
-| Integration | 20 | `docker compose run --rm test pytest -q tests/integration` |
-| Acceptance | 8 | `docker compose run --rm test pytest -q tests/acceptance` |
-| End-to-end UI | 24 | `./scripts/smoke-ui.sh` |
+| Suíte | Contagem | Comando |
+|-------|----------|---------|
+| Segurança | 70 | `docker compose run --rm test pytest -q tests/security` |
+| Integração | 20 | `docker compose run --rm test pytest -q tests/integration` |
+| Aceitação | 8 | `docker compose run --rm test pytest -q tests/acceptance` |
+| Ponta a ponta UI | 24 | `./scripts/smoke-ui.sh` |
 
-Plus the canonical closeout chain in `scripts/test-publication.sh`
-which runs every verifier back-to-back against a fresh stack.
+Mais a cadeia canônica de fechamento em `scripts/test-publication.sh`, que executa cada verificador de costas para uma stack fresca.
 
-**Out of 16 acceptance questions, the demonstration run resolves 15
-cleanly and exposes 1 known drift**:
+**De 16 perguntas de aceitação, a execução de demonstração resolve 15 de forma limpa e expõe 1 drift conhecido**:
 
-- **Q13 ("Who won the 2024 Copa America final?")** unexpectedly
-  returned `status=answered` with `best_score=0.2977` above the
-  retrieval threshold of `0.20`. The corpus does not contain sports
-  content; the closest match was a chunk in `indoor-herb-garden.md`
-  whose "Light Requirements" section shares incidental token
-  overlap with the question. The drift is a known limitation of the
-  deterministic stub embedding (it hashes each input to a unit-norm
-  vector, which can lift borderline fragments above the threshold).
-  The verifier accepts the 1/16 drift (6.25 %) within the 20 %
-  acceptance budget. Tighter thresholds would refuse Q13 but also
-  refuse legitimate on-topic queries — the current threshold is the
-  calibrated balance.
+- **Q13 ("Quem venceu a final da Copa América de 2024?")** inesperadamente retornou `status=answered` com `best_score=0.2977` acima do limiar de recuperação de `0.20`. O corpus não contém conteúdo de esportes; a correspondência mais próxima foi um chunk em `indoor-herb-garden.md` cuja seção "Light Requirements" compartilha sobreposição incidental de tokens com a pergunta. O drift é uma limitação conhecida do embedding stub determinístico (ele faz hash de cada entrada para um vetor unitário, o que pode elevar fragmentos borderline acima do limiar). O verificador aceita o drift de 1/16 (6,25 %) dentro do orçamento de aceitação de 20 %. Limiares mais restritos recusariam Q13 mas também recusariam consultas legítimas on-topic — o limiar atual é o equilíbrio calibrado.
 
-The full gap discussion is in `proof/gaps.md` and is preserved
-verbatim in the repository.
+A discussão completa do gap está em `proof/gaps.md` e é preservada literalmente no repositório.
 
-## 8. Honest limitations
+## 8. Limitações honestas
 
-- **No real-world knowledge.** The shipped corpus is synthetic and
-  openly licensed. The assistant cannot answer questions outside
-  its corpus, and the corpus is narrow by design (cat care, dog
-  adoption, fermentation, fitness, herb garden, open-source
-  licensing, a fictional Python tool).
-- **No OCR, no complex tables, no charts.** Only Markdown, plain
-  text and textual PDFs are ingested. Scanned images, hand-written
-  notes, and multimodal figures are out of scope.
-- **No perfect-accuracy promise.** Embeddings are lossy. The
-  assistant may refuse correctly and may still get a
-  partially-supported answer wrong. Every answer carries the
-  citations it was grounded in — read them.
-- **No live external services.** The embedding adapter is the
-  deterministic local stub by default. A vendor integration is
-  available via configuration but is not exercised by the test
-  suite (no network in CI).
-- **Auth-off by default.** The shipped `.env` sets
-  `AUTH_ENABLED=false` so the demo stack is permissive. The auth
-  gate is on by a single configuration flip and is verified
-  end-to-end by `tests/e2e/test_ui_auth_gate.py`.
-- **localStorage token.** The token persists in the browser's
-  `localStorage` so a single-tab refresh keeps the authenticated
-  state. This is the right tradeoff for a static-token gate over
-  `localhost`; a real deployment should swap the gate for a proper
-  IdP. The gate is isolated to one module so the swap is mechanical.
-- **Stub embedding.** The deterministic stub hashes each input to a
-  unit-norm 1536-d vector. The test suite is reproducible because
-  the hashing is stable. Switching to a vendor embedding will
-  change the cosine scores and may shift borderline answers — the
-  Q13 drift is the canonical example of this exposure.
-- **No hosted mode.** No public URL, no TLS termination, no SaaS
-  multi-tenancy, no billing. Bring-up is local-only (`docker
-  compose up`).
-- **No SLA, no 24/7 monitoring.** This is a reproducible
-  demonstration, not a production service.
-- **No advanced reasoning layer.** The "Intelligence" extension
-  (multi-hop retrieval, agentic tool use, semantic caching) is
-  intentionally out of scope. The current generation answers
-  single-hop questions; multi-hop is a separate research line.
+- **Sem conhecimento do mundo real.** O corpus embarcado é sintético e abertamente licenciado. O assistente não pode responder perguntas fora do seu corpus, e o corpus é estreito por design (cuidados com gatos, adoção de cachorros, fermentação, fitness, horta, licenciamento open-source, uma ferramenta Python fictícia).
+- **Sem OCR, sem tabelas complexas, sem gráficos.** Apenas Markdown, texto plano e PDFs textuais são ingeridos. Imagens escaneadas, notas manuscritas e figuras multimodais estão fora do escopo.
+- **Sem promessa de precisão perfeita.** Embeddings são com perdas. O assistente pode recusar corretamente e ainda assim errar uma resposta parcialmente suportada. Cada resposta carrega as citações nas quais foi fundamentada — leia-as.
+- **Sem serviços externos vivos.** O adaptador de embedding é o stub local determinístico por padrão. Uma integração de fornecedor está disponível via configuração, mas não é exercitada pela suíte de testes (sem rede em CI).
+- **Auth off por padrão.** O `.env` embarcado define `AUTH_ENABLED=false` para que a stack de demo seja permissiva. O gate de auth é ativado por uma única troca de configuração e é verificado ponta a ponta por `tests/e2e/test_ui_auth_gate.py`.
+- **Token em localStorage.** O token persiste no `localStorage` do navegador para que um refresh em uma única aba mantenha o estado autenticado. Este é o trade-off certo para um gate de token estático sobre `localhost`; uma implantação real deve trocar o gate por um IdP adequado. O gate está isolado em um único módulo, de modo que a troca é mecânica.
+- **Stub embedding.** O stub determinístico faz hash de cada entrada para um vetor unitário de 1536 dimensões. A suíte de testes é reproduzível porque o hashing é estável. Trocar para um embedding de fornecedor mudará os scores de cosseno e pode deslocar respostas borderline — o drift Q13 é o exemplo canônico dessa exposição.
+- **Sem modo hospedado.** Sem URL pública, sem terminação TLS, sem multi-tenancy SaaS, sem billing. A inicialização é exclusivamente local (`docker compose up`).
+- **Sem SLA, sem monitoramento 24/7.** Esta é uma demonstração reproduzível, não um serviço de produção.
+- **Sem camada de raciocínio avançada.** A extensão "Intelligence" (recuperação multi-hop, uso de ferramentas agentic, cache semântico) está intencionalmente fora do escopo. A geração atual responde perguntas single-hop; multi-hop é uma linha de pesquisa separada.
 
-## 9. How to run the demo
+## 9. Como rodar a demo
 
-Requirements: Docker Engine ≥ 29 and Docker Compose v2.
+Requisitos: Docker Engine ≥ 29 e Docker Compose v2.
 
 ```bash
-# 1. Clone the repository
-git clone <this-repo> upwork-knowledge-assistant
-cd upwork-knowledge-assistant
+# 1. Clone o repositório
+git clone <este-repo> assistente-de-conhecimento
+cd assistente-de-conhecimento
 
-# 2. Bootstrap the configuration
-cp .env.example .env                     # placeholder values; edit if needed
+# 2. Inicialize a configuração
+cp .env.example .env                     # valores placeholder; edite se necessário
 
-# 3. Build, bring up, and verify the stack
-docker compose config --quiet            # composition is valid
-docker compose build --pull              # build every service
-docker compose up -d --wait              # start and wait for healthchecks
+# 3. Construa, levante e verifique a stack
+docker compose config --quiet            # a composição é válida
+docker compose build --pull              # constrói todos os serviços
+docker compose up -d --wait              # inicia e aguarda os healthchecks
 
-# 4. Open the demo
-xdg-open http://127.0.0.1:8080/          # or visit the URL in your browser
-xdg-open http://127.0.0.1:8080/gallery/  # the review-ready gallery
+# 4. Abra a demo
+xdg-open http://127.0.0.1:8080/          # ou visite a URL no seu navegador
+xdg-open http://127.0.0.1:8080/gallery/  # a galeria pronta para revisão
 
-# 5. Run the full test sweep
+# 5. Execute a varredura completa de testes
 docker compose run --rm test pytest -q tests/security
 docker compose run --rm test pytest -q tests/integration
 docker compose run --rm test pytest -q tests/acceptance
-./scripts/smoke-ui.sh                    # end-to-end UI tests
-./scripts/test-publication.sh            # canonical closeout chain
+./scripts/smoke-ui.sh                    # testes de UI ponta a ponta
+./scripts/test-publication.sh            # cadeia canônica de fechamento
 
-# 6. Tear it all down (DESTRUCTIVE: drops the pgvector volume)
+# 6. Desmonte tudo (DESTRUTIVO: descarta o volume pgvector)
 docker compose down -v
 ```
 
-The `test` service is hidden behind a `profiles: ["never"]` setting,
-so `docker compose up` does not start it. It runs only on demand
-through `docker compose run --rm test …`.
+O serviço `test` está oculto por uma configuração `profiles: ["never"]`, então `docker compose up` não o inicia. Ele roda apenas sob demanda via `docker compose run --rm test …`.
 
-### Onboarding with your own corpus
+### Onboarding com seu próprio corpus
 
-1. Drop Markdown, plain text or textual-PDF files into `data/corpus/`.
-2. Rebuild and bring the stack back up:
+1. Coloque arquivos Markdown, texto plano ou PDF textual em `data/corpus/`.
+2. Reconstrua e levante a stack novamente:
    `docker compose build --pull api && docker compose up -d --wait`.
-3. Re-run the proof to refresh `proof/results.json` and
-   `proof/results.md`: `./scripts/run-proof.sh`.
-4. Review `proof/gaps.md` and update it if the new documents close
-   any open refusal topic — `verify-proof-artifacts.sh` enforces
-   that every corpus document appears in the source map.
+3. Reexecute a prova para atualizar `proof/results.json` e `proof/results.md`: `./scripts/run-proof.sh`.
+4. Revise `proof/gaps.md` e atualize-o se os novos documentos cobrirem qualquer tópico de recusa em aberto — `verify-proof-artifacts.sh` exige que cada documento do corpus apareça no source map.
 
-## 10. Stack refresh and embedding switch
+## 10. Refresh de stack e troca de embedding
 
-The provider is decoupled by the embedding adapter. The stub
-(`EMBEDDING_STUB=true`) is the deterministic local hash-to-vector
-adapter used for tests and offline runs. To switch to a real
-OpenAI-compatible provider:
+O provedor é desacoplado pelo adaptador de embedding. O stub (`EMBEDDING_STUB=true`) é o adaptador local determinístico de hash para vetor usado para testes e execuções offline. Para trocar para um provedor OpenAI-compatível real:
 
 ```bash
 # .env
 EMBEDDING_STUB=false
 EMBEDDING_BASE_URL=https://api.openai.com/v1
-EMBEDDING_API_KEY=<set by secret manager — never commit>
+EMBEDDING_API_KEY=<definido pelo secret manager — nunca comite>
 EMBEDDING_MODEL=text-embedding-3-small
 EMBEDDING_DIM=1536
 ```
 
-Then rebuild the API image:
+Em seguida, reconstrua a imagem da API:
 `docker compose build --pull api && docker compose up -d --wait`.
-The dimension column on the vector store is created by
-`ensure_schema()` based on `EMBEDDING_DIM`, so changing the value
-without a fresh volume raises a startup error — that is intentional.
+A coluna de dimensão no armazenamento vetorial é criada por `ensure_schema()` com base em `EMBEDDING_DIM`, então mudar o valor sem um volume fresco levanta um erro de inicialização — isso é intencional.
 
 ---
 
-## 11. Source-of-truth pointers
+## 11. Ponteiros para a fonte da verdade
 
-- `README.md` — repository landing page, quick start.
-- `publication/HANDOFF.md` — one-and-done buyer handoff.
-- `publication/RETENTION.md` — manual retention procedure.
-- `publication/COPY.md` — commercial copy (promise, deliverables,
-  limits, acceptance).
-- `publication/UX-REVIEW.md` — independent usability audit that
-  drove the UX improvements applied in this release.
-- `proof/gaps.md` — explicit list of refusal topics and the Q13
-  drift.
-- `scripts/test-publication.sh` — canonical closeout chain.
-- `gallery/SHA256SUMS.reference` — content hash of the four review
-  states.
+- `README.md` — página de destino do repositório, início rápido.
+- `publication/HANDOFF.md` — handoff único para o comprador.
+- `publication/RETENTION.md` — procedimento de retenção manual.
+- `publication/COPY.md` — copy comercial (promessa, entregáveis, limites, aceitação).
+- `publication/UX-REVIEW.md` — auditoria independente de usabilidade que conduziu as melhorias de UX aplicadas nesta versão.
+- `proof/gaps.md` — lista explícita de tópicos de recusa e o drift Q13.
+- `scripts/test-publication.sh` — cadeia canônica de fechamento.
+- `gallery/SHA256SUMS.reference` — hash de conteúdo dos quatro estados de revisão.
+
+---
+
+🇧🇷 **Esta é a documentação em português (Brasil).** [Read in English →](./CASE.en.md)

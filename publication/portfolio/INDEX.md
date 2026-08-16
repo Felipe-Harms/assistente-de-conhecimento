@@ -1,41 +1,45 @@
-# Index — Portfolio Case Sections
+# Índice — Seções do Estudo de Caso
 
-> A navigable index of every section in [CASE.md](CASE.md). Each
-> row points at the heading and offers a one-line summary so you
-> can scan the document without scrolling.
+> Um índice navegável de cada seção em [CASE.md](CASE.md). Cada linha aponta para o cabeçalho e oferece um resumo de uma linha para que você possa escanear o documento sem rolar.
 
-## Sections
+🇧🇷 **Esta é a documentação em português (Brasil).** [Read in English →](./INDEX.en.md)
 
-| # | Section | One-line summary |
-|---|---------|------------------|
-| 1 | [Problem](CASE.md#1-problem) | Trust, refusal, audit, reproducibility, and deployment friction — the unspoken trade-offs that separate a demo from a delivery. |
-| 2 | [Target public](CASE.md#2-target-public) | Small-to-mid delivery teams with a curated corpus and no managed backend available. |
-| 3 | [Solution](CASE.md#3-solution) | A four-service local stack that surfaces three honest answer states (`answered`, `refused`, `error`) and an actionable empty state. |
-| 4 | [Architecture and stack](CASE.md#4-architecture-and-stack) | nginx + FastAPI + Postgres/pgvector + Playwright, with a one-line justification for each choice. |
-| 5 | [Key decisions](CASE.md#5-key-decisions) | Three honest states, citations as first-class, refusal as a feature, no vendor lock-in, reproducible acceptance, manual retention. |
-| 6 | [Security and isolation](CASE.md#6-security-and-isolation) | Auth gate, Pydantic validation, structured audit log, secret-scanning, network isolation, and the localStorage tradeoff. |
-| 7 | [Verifiable results](CASE.md#7-verifiable-results) | 70 + 20 + 8 + 24 = 122 tests green on a fresh clone, plus the documented Q13 drift (1/16 within the 20 % budget). |
-| 8 | [Honest limitations](CASE.md#8-honest-limitations) | No real-world knowledge, no OCR, no perfect accuracy, no live services, auth-off by default, localStorage, stub embedding, no hosted mode, no SLA, no advanced reasoning. |
-| 9 | [How to run the demo](CASE.md#9-how-to-run-the-demo) | `git clone → cp .env.example .env → docker compose up -d --wait → curl` and the canonical closeout chain. |
-| 10 | [Stack refresh and embedding switch](CASE.md#10-stack-refresh-and-embedding-switch) | Swap the stub for a real OpenAI-compatible provider via configuration, not code. |
-| 11 | [Source-of-truth pointers](CASE.md#11-source-of-truth-pointers) | Where to look in the repository for each claim made in the case study. |
+## Seções
 
-## Reusable short copy
+| # | Seção | Resumo de uma linha |
+|---|-------|---------------------|
+| 1 | [Problema](CASE.md#1-problem) | Confiança, recusa, auditoria, reprodutibilidade e fricção de implantação — os trade-offs não ditos que separam uma demo de uma entrega. |
+| 2 | [Público-alvo](CASE.md#2-target-public) | Equipes de entrega pequenas e médias com corpus curado e sem backend gerenciado disponível. |
+| 3 | [Solução](CASE.md#3-solution) | Uma stack local de quatro serviços que apresenta três estados honestos de resposta (`answered`, `refused`, `error`) e um estado vazio acionável. |
+| 4 | [Arquitetura e stack](CASE.md#4-architecture-and-stack) | nginx + FastAPI + Postgres/pgvector + Playwright, com uma justificativa de uma linha para cada escolha. |
+| 5 | [Decisões-chave](CASE.md#5-key-decisions) | Três estados honestos, citações como primeira classe, recusa como recurso, sem lock-in de fornecedor, aceitação reproduzível, retenção manual. |
+| 6 | [Segurança e isolamento](CASE.md#6-security-and-isolation) | Gate de auth, validação Pydantic, log de auditoria estruturado, varredura de segredos, isolamento de rede e o trade-off do localStorage. |
+| 7 | [Resultados verificáveis](CASE.md#7-verifiable-results) | 70 + 20 + 8 + 24 = 122 testes verdes em um clone fresco, mais o drift Q13 documentado (1/16 dentro do orçamento de 20 %). |
+| 8 | [Limitações honestas](CASE.md#8-honest-limitations) | Sem conhecimento do mundo real, sem OCR, sem precisão perfeita, sem serviços vivos, auth off por padrão, localStorage, stub embedding, sem modo hospedado, sem SLA, sem raciocínio avançado. |
+| 9 | [Como rodar a demo](CASE.md#9-how-to-run-the-demo) | `git clone → cp .env.example .env → docker compose up -d --wait → curl` e a cadeia canônica de fechamento. |
+| 10 | [Refresh de stack e troca de embedding](CASE.md#10-stack-refresh-and-embedding-switch) | Troque o stub por um provedor OpenAI-compatível real via configuração, não código. |
+| 11 | [Ponteiros para a fonte da verdade](CASE.md#11-source-of-truth-pointers) | Onde olhar no repositório para cada afirmação feita no estudo de caso. |
 
-| Block | Where to use it |
-|-------|-----------------|
-| [One-paragraph summary](SHORT-COPY.md#1-the-one-paragraph-summary) | Portfolio landing page, "about the project" paragraph. |
-| [Three-sentence elevator pitch](SHORT-COPY.md#2-the-three-sentence-elevator-pitch) | Cold outreach, résumé headline, conference bio. |
-| [Trust-and-trade-off block](SHORT-COPY.md#3-the-trust-and-trade-off-block) | Buyer-facing security review, due-diligence questionnaire. |
-| [Specific-results block](SHORT-COPY.md#4-the-specific-results-block) | Pre-sales deck, proposal annex, "what does the test suite actually prove?" question. |
-| ["Who is this for" paragraph](SHORT-COPY.md#5-the-who-is-this-for-paragraph) | Audience-scoping section, scope-of-work narrative. |
+## Short copy reutilizável
 
-## Companion files
+| Bloco | Onde usar |
+|-------|-----------|
+| [Resumo de um parágrafo](SHORT-COPY.md#1-o-resumo-de-um-parágrafo) | Página de destino do portfólio, parágrafo "sobre o projeto". |
+| [Pitch de três frases](SHORT-COPY.md#2-o-pitch-de-três-frases) | Prospecção a frio, headline de currículo, bio de conferência. |
+| [Bloco de confiança e trade-offs](SHORT-COPY.md#3-o-bloco-de-confiança-e-trade-offs) | Revisão de segurança para o comprador, questionário de due-diligence. |
+| [Bloco de resultados específicos](SHORT-COPY.md#4-o-bloco-de-resultados-específicos) | Deck pré-vendas, anexo de proposta, pergunta "o que a suíte de testes realmente comprova?". |
+| [Parágrafo "para quem é isso"](SHORT-COPY.md#5-o-parágrafo-para-quem-é-isso) | Seção de escopo de público, narrativa de escopo de trabalho. |
 
-| File | Purpose |
-|------|---------|
-| [README.md](README.md) | Entry point — what this directory is, how to read it, how the case is kept honest. |
-| [CASE.md](CASE.md) | The full case study. |
-| [SHORT-COPY.md](SHORT-COPY.md) | Reusable short paragraphs. |
-| [INDEX.md](INDEX.md) | This file — navigable index. |
-| [assets/](assets/) | Review-ready screenshots from the gallery. |
+## Arquivos companheiros
+
+| Arquivo | Propósito |
+|---------|-----------|
+| [README.md](README.md) | Ponto de entrada — o que é este diretório, como lê-lo, como o caso se mantém honesto. |
+| [CASE.md](CASE.md) | O estudo de caso completo. |
+| [SHORT-COPY.md](SHORT-COPY.md) | Parágrafos curtos reutilizáveis. |
+| [INDEX.md](INDEX.md) | Este arquivo — índice navegável. |
+| [assets/](assets/) | Capturas de tela prontas para revisão da galeria. |
+
+---
+
+🇧🇷 **Esta é a documentação em português (Brasil).** [Read in English →](./INDEX.en.md)

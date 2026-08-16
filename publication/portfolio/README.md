@@ -1,75 +1,58 @@
-# Portfolio Case — Local-First Knowledge Assistant
+# Estudo de Caso — Assistente de Conhecimento Local-First
 
-> A reproduction-ready, citation-grounded answer service that runs on
-> a single `docker compose up` and never touches a credit card. Every
-> answer is grounded in the operator's own corpus, refuses honestly
-> when the evidence is thin, and ships with a deterministic test suite
-> that proves the contract.
+> Um serviço de respostas baseado em citações, pronto para reprodução, que roda com um único `docker compose up` e nunca precisa de cartão de crédito. Cada resposta é fundamentada no corpus do próprio operador, recusa-se honestamente quando a evidência é fraca e vem com uma suíte de testes determinística que comprova o contrato.
 
-This directory is a sanitized portfolio case study. It documents the
-project for visitors who want to understand the design, the
-trade-offs, the security posture, and the verified results — without
-reading the source code.
+🇧🇷 **Esta é a documentação em português (Brasil).** [Read in English →](./README.en.md)
 
-## Start here
+## Comece aqui
 
-- **[CASE.md](CASE.md)** — the full case study: problem, target
-  public, solution, architecture, stack, decisions, security,
-  verified results, honest limitations, and how to run the demo.
-- **[SHORT-COPY.md](SHORT-COPY.md)** — three reusable paragraphs
-  you can paste into a proposal, a resume bullet, or a portfolio
-  site.
-- **[INDEX.md](INDEX.md)** — a navigable index of every section
-  in the case study, with the section header and a one-line
-  summary.
-- **[assets/](assets/)** — review-ready screenshots from the
-  gallery: idle, answered, refused, and the friendly error banner.
+- **[CASE.md](CASE.md)** — o estudo de caso completo: problema, público-alvo, solução, arquitetura, stack, decisões, segurança, resultados verificados, limitações honestas e como rodar a demo.
+- **[SHORT-COPY.md](SHORT-COPY.md)** — três parágrafos reutilizáveis que você pode colar em uma proposta, um bullet de currículo ou um site de portfólio.
+- **[INDEX.md](INDEX.md)** — um índice navegável de cada seção do estudo de caso, com o cabeçalho da seção e um resumo de uma linha.
+- **[assets/](assets/)** — capturas de tela prontas para revisão da galeria: idle, answered, refused e o banner de erro amigável.
 
-## What this case is not
+## O que este caso não é
 
-- It is **not** the source of the code. The code lives in the
-  repository root and in `ui/`, `api/`, `db/`, `tests/`, and
-  `scripts/`.
-- It is **not** a marketing page. The verified results and the
-  honest limitations are mandatory sections, not optional.
-- It is **not** an external publication. Nothing here is posted
-  to a third-party platform; this is a local artifact that
-  visitors can browse alongside the code.
+- **Não** é a fonte do código. O código vive na raiz do repositório e em `ui/`, `api/`, `db/`, `tests/` e `scripts/`.
+- **Não** é uma página de marketing. Os resultados verificados e as limitações honestas são seções obrigatórias, não opcionais.
+- **Não** é uma publicação externa. Nada aqui é postado em uma plataforma de terceiros; este é um artefato local que visitantes podem navegar junto com o código.
 
-## How the case is kept honest
+## Como o caso se mantém honesto
 
-- The case study cites the test counts (`70 security + 20
-  integration + 8 acceptance + 24 end-to-end = 122`) verbatim
-  from the reproducible test suites.
-- The Q13 drift ("Who won the 2024 Copa America final?") is
-  declared as a known limitation, because the deterministic stub
-  embedding lifts a borderline fragment above the retrieval
-  threshold. The drift is documented in
-  `proof/gaps.md` and is preserved verbatim in the repository.
-- The local-only posture is declared explicitly: no hosted mode,
-  no SLA, no 24/7 monitoring, no public endpoint.
-- The token-in-localStorage tradeoff is declared as a deliberate
-  tradeoff of the static-token gate, not as a recommended pattern
-  for production deployment.
+- O estudo de caso cita as contagens de testes (`70 segurança + 20 integração + 8 aceitação + 24 ponta a ponta = 122`) literalmente das suítes reproduzíveis.
+- O drift Q13 ("Quem venceu a final da Copa América de 2024?") é declarado como uma limitação conhecida, porque o embedding stub determinístico eleva um fragmento borderline acima do limiar de recuperação. O drift é documentado em `proof/gaps.md` e é preservado literalmente no repositório.
+- A postura exclusivamente local é declarada explicitamente: sem modo hospedado, sem SLA, sem monitoramento 24/7, sem endpoint público.
+- A troca de trade-off do token em localStorage é declarada como uma escolha deliberada do gate de token estático, não como um padrão recomendado para implantação em produção.
 
-## How to reproduce the results
+## Como reproduzir os resultados
 
-The case study's verifiable numbers come from these commands:
+Os números verificáveis do estudo de caso vêm destes comandos:
 
 ```bash
-# Bring up the stack
+# Levanta a stack
 docker compose up -d --wait
 
-# Run the full test sweep
+# Executa a suíte completa de testes
 docker compose run --rm test pytest -q tests/security
 docker compose run --rm test pytest -q tests/integration
 docker compose run --rm test pytest -q tests/acceptance
 ./scripts/smoke-ui.sh
 
-# Canonical closeout chain
+# Cadeia canônica de fechamento
 ./scripts/test-publication.sh
 ```
 
-The same chain runs in CI and on a fresh clone. There is no
-manual step between the commands and the verifiable numbers
-quoted in this case study.
+A mesma cadeia roda em CI e em um clone fresco. Não há nenhum passo manual entre os comandos e os números verificáveis citados neste estudo de caso.
+
+## Documentação bilíngue
+
+Este portfólio é publicado em português (Brasil) como apresentação principal, com inglês claramente acessível:
+
+- **Português (Brasil):** `README.md`, `CASE.md`, `INDEX.md`, `SHORT-COPY.md`.
+- **Inglês:** `README.en.md`, `CASE.en.md`, `INDEX.en.md`, `SHORT-COPY.en.md`.
+
+Os identificadores técnicos (nomes de env, endpoints de API, nomes de funções/classes, SQL, serviços Docker, identificadores JS) permanecem em inglês para preservar os contratos.
+
+---
+
+🇧🇷 **Esta é a documentação em português (Brasil).** [Read in English →](./README.en.md)
