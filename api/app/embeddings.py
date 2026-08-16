@@ -1,13 +1,13 @@
 """OpenAI-compatible embedding adapter (DEC-005).
 
-The real network call lives behind a Protocol. For TASK-001 we ship a
+The real network call lives behind a Protocol. For the initial phase we ship a
 deterministic stub that produces a stable dim-sized vector keyed on the
 SHA-256 of the input text. This makes the test suite reproducible without an
 API key and without coupling the product to a specific vendor.
 
 Switch to the live client by setting `EMBEDDING_STUB=false` in the environment.
 
-TASK-002: the stub became *token-aware* so that two topically similar inputs
+main phase: the stub became *token-aware* so that two topically similar inputs
 land near each other in cosine space. Without this refinement, the raw
 hash-folded stub produces quasi-random vectors, which makes retrieval
 indistinguishable from random top-k. The token-aware layer is a hashing
@@ -124,13 +124,13 @@ def _deterministic_vector(text: str, dim: int) -> list[float]:
 def make_client(*, stub: bool, dim: int) -> EmbeddingClient:
     """Factory selected on env (`EMBEDDING_STUB`).
 
-    Real network client is intentionally NOT shipped in TASK-001; only the
+    Real network client is intentionally NOT shipped in initial phase; only the
     interface and a usable stub.
     """
     if stub:
         return StubEmbeddingClient(dim=dim)
     raise EmbeddingError(
-        "live embedding client is not wired in TASK-001; set EMBEDDING_STUB=true"
+        "live embedding client is not wired in the initial phase; set EMBEDDING_STUB=true"
     )
 
 

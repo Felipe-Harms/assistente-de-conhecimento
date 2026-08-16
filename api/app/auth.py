@@ -5,7 +5,7 @@ carry an `Authorization: Bearer <token>` header matching `AUTH_TOKEN`.
 Comparison uses `secrets.compare_digest` to avoid timing leaks.
 
 This is intentionally minimal. Production should wire in a real IdP — that is
-out of TASK-001 scope.
+out of the initial phase scope.
 """
 
 from __future__ import annotations

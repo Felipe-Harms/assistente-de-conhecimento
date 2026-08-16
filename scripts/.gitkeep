@@ -1,3 +1,3 @@
 # Scripts placeholder.
 # Verification/destroy helpers (verify-proof-artifacts.sh, smoke-ui.sh,
-# test-all.sh, verify-handoff.sh, verify-scope.sh) land in TASK-002/004.
+# test-all.sh, verify-handoff.sh, verify-scope.sh) land in initial/final phases.

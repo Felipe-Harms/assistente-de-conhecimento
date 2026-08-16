@@ -1,4 +1,4 @@
-"""Retrieval pipeline — TASK-002 / REQ-003 + REQ-004.
+"""Retrieval pipeline — REQ-003 + REQ-004.
 
 Queries a collection using cosine similarity over pgvector. Returns the
 top-k chunks with their scores, normalised to [0, 1] (1.0 = identical).

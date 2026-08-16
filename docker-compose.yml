@@ -1,7 +1,7 @@
 name: upwork-knowledge-assistant
 
 # =============================================================================
-# Compose contract for TASK-001 (foundation).
+# Compose contract for the initial phase (foundation).
 # All four services — db, api, ui, test — must come up with green healthchecks
 # via `docker compose config --quiet && docker compose build --pull && \
 #  docker compose up -d --wait`. The `test` service does not need to be

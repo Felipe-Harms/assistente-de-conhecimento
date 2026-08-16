@@ -52,7 +52,7 @@ class EmbeddingRequest(BaseModel):
 
 
 class EmbeddingResponse(BaseModel):
-    """Stub response used by `/v1/embeddings`. Real schema lands in TASK-002."""
+    """Stub response used by `/v1/embeddings`. Real schema lands in a later phase."""
 
     model: str
     dim: int
@@ -66,7 +66,7 @@ class ErrorEnvelope(BaseModel):
 
 
 # ---------------------------------------------------------------------------
-# TASK-002 — ingest / query / collections
+# main phase — ingest / query / collections
 # ---------------------------------------------------------------------------
 
 class IngestRequest(BaseModel):

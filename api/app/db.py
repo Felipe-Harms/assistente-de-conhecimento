@@ -1,11 +1,11 @@
-"""Async DB layer — TASK-002 ingestion + retrieval backends.
+"""Async DB layer — ingestion + retrieval backends.
 
 A single asyncpg pool is owned by the FastAPI app and shared by the
 ingest/retrieve/request modules. The pool is created lazily on first call
 to `get_pool()` and reused across requests.
 
 `ensure_schema()` is idempotent — it runs on app startup and tolerates a
-volume that already has the TASK-001 schema. It is safe to call repeatedly.
+volume that already has the initial-phase schema. It is safe to call repeatedly.
 """
 
 from __future__ import annotations
@@ -64,7 +64,7 @@ async def close_pool() -> None:
 async def ensure_schema(embedding_dim: int) -> None:
     """Idempotent migration — safe to run on every app startup.
 
-    Existing TASK-001 volumes are upgraded in place:
+    Existing initial-phase volumes are upgraded in place:
       - CREATE TABLE IF NOT EXISTS for `collections`
       - ADD COLUMN IF NOT EXISTS for `chunks.collection_id` and
         `chunks.embedding`
@@ -97,7 +97,7 @@ async def ensure_schema(embedding_dim: int) -> None:
             await conn.execute(stmt)
 
         # IVFFlat is approximate — it needs at least a few thousand rows
-        # to produce sane nearest-neighbour recall. The TASK-002 corpus
+        # to produce sane nearest-neighbour recall. The shipped corpus
         # is small (~50 chunks), so we explicitly skip the index and rely
         # on a sequential cosine scan. The migration log surfaces a
         # NOTICE if the table ever grows enough to warrant the index.

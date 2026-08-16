@@ -43,7 +43,7 @@ if [[ ! -s "$MANIFEST" ]]; then
 fi
 ok "$MANIFEST present"
 
-# Content check (TASK-005R B2): compare the four required-state PNGs
+# Content check (final phase B2): compare the four required-state PNGs
 # against the canonical SHA-256 reference captured after a fresh
 # Playwright run. The reference lives in gallery/SHA256SUMS.reference
 # and is shipped with the kit. Re-capture mode regenerates the
@@ -120,7 +120,7 @@ for f in "${manifest_pngs[@]}"; do
     ok "$full  ${width}x${height}  ${bytes}B"
 done
 
-# Content check (TASK-005R B2): each required-state PNG must match
+# Content check (final phase B2): each required-state PNG must match
 # the canonical SHA-256 recorded in gallery/SHA256SUMS.reference.
 # The reference distinguishes idle / answered / refused / auth-error
 # by content (not just name) — a swapped or replaced PNG will fail

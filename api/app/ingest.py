@@ -1,4 +1,4 @@
-"""Ingestion pipeline — TASK-002 / REQ-002.
+"""Ingestion pipeline — REQ-002.
 
 Responsibilities:
   - Accept files (bytes), a path, or inline text.

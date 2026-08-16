@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS chunks (
 CREATE INDEX IF NOT EXISTS chunks_workspace_idx ON chunks(workspace);
 CREATE INDEX IF NOT EXISTS chunks_document_idx ON chunks(document_id);
 
--- Collections — TASK-002 (REQ-002/REQ-003). A collection is a named bucket
+-- Collections — (REQ-002/REQ-003). A collection is a named bucket
 -- of documents within a workspace; queries are scoped to a collection so
 -- two collections in the same workspace are isolated.
 CREATE TABLE IF NOT EXISTS collections (
@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS collections (
     UNIQUE (workspace, name)
 );
 
--- Chat history (REQ-004 / REQ-006). Empty skeleton; real fields in TASK-003.
+-- Chat history (REQ-004 / REQ-006). Empty skeleton; real fields in a later phase.
 CREATE TABLE IF NOT EXISTS chat_messages (
     id           BIGSERIAL PRIMARY KEY,
     workspace    TEXT NOT NULL DEFAULT 'default',

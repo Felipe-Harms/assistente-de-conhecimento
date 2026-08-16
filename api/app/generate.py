@@ -1,11 +1,11 @@
-"""Generation pipeline — TASK-002 / REQ-004.
+"""Generation pipeline — REQ-004.
 
 Two hard constraints from the contract:
   1. Answers must cite a real chunk (source_id + chunk_id + text snippet).
   2. When the corpus does not support the question, the system must refuse
      explicitly. No fabrication. No "best-guess" partial answers.
 
-We do NOT call an LLM in TASK-002. The "answer" is a deterministic
+We do NOT call an LLM in the main phase. The "answer" is a deterministic
 templated summary that names the corpus topics covered by the retrieved
 chunks. This is documented in the README and gives a stable, auditable
 output that still satisfies the "answer is grounded" requirement.

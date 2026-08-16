@@ -1,12 +1,12 @@
 """FastAPI application entry point.
 
-TASK-001 surface area:
+initial phase surface area:
   - `/healthz`   liveness probe (always returns 200; no DB access)
   - `/readyz`    readiness probe (returns 200 with components map)
   - `/v1/`       versioned router (embeddings stub)
   - `/`          tiny metadata JSON so the root is not a 404
 
-TASK-002 surface area (REQ-002 / REQ-003 / REQ-004):
+main phase surface area (REQ-002 / REQ-003 / REQ-004):
   - `POST /v1/collections`        create collection
   - `GET  /v1/collections`        list collections
   - `GET  /v1/collections/{id}`   details + counts
@@ -289,7 +289,7 @@ def _build_app(settings: Settings | None = None) -> FastAPI:
         )
 
     # -----------------------------------------------------------------------
-    # TASK-002 — collections / ingest / query / citations
+    # main phase — collections / ingest / query / citations
     # -----------------------------------------------------------------------
 
     @app.post(
