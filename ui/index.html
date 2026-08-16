@@ -1,117 +1,119 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#0f172a" />
-  <title id="page-title">Upwork Knowledge Assistant</title>
+  <title id="page-title">Assistente de Conhecimento</title>
   <link rel="icon" href="data:," />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <a class="skip-link" href="#main">Skip to main content</a>
+  <a class="skip-link" href="#main">Pular para o conteúdo principal</a>
   <header class="topbar" role="banner">
     <div class="brand">
       <img id="brand-logo" class="brand-logo" alt="" hidden />
       <div>
-        <h1 id="brand-name" class="brand-name">Upwork Knowledge Assistant</h1>
-        <p class="subtitle" id="subtitle">Loading identity…</p>
+        <h1 id="brand-name" class="brand-name">Assistente de Conhecimento</h1>
+        <p class="subtitle" id="subtitle">Carregando identidade…</p>
       </div>
+    </div>
+    <div class="topbar-controls">
+      <button id="lang-toggle" type="button" class="ghost-btn" aria-label="Alternar idioma" title="Alternar idioma">EN</button>
     </div>
     <div class="topbar-status">
       <span id="auth-pill" class="pill pill-muted" hidden>Auth</span>
       <button id="auth-toggle" type="button" class="ghost-btn" hidden>
-        Configure token
+        Configurar token
       </button>
     </div>
   </header>
 
   <section id="auth-panel" class="auth-panel" hidden aria-labelledby="auth-panel-title">
-    <h2 id="auth-panel-title">Bearer token</h2>
+    <h2 id="auth-panel-title">Token bearer</h2>
     <p class="muted">
-      The API is configured with <code>AUTH_ENABLED=true</code>. Paste the
-      pre-shared token; it is stored only in this browser's local storage
-      and sent as <code>Authorization: Bearer …</code> on every request.
+      A API está configurada com <code>AUTH_ENABLED=true</code>. Cole o token
+      pré-compartilhado; ele é armazenado apenas no localStorage deste
+      navegador e enviado como <code>Authorization: Bearer …</code> em cada requisição.
     </p>
-    <label for="auth-token" class="sr-only">Bearer token</label>
+    <label for="auth-token" class="sr-only">Token bearer</label>
     <div class="auth-row">
       <input id="auth-token" type="password" autocomplete="off"
-             spellcheck="false" placeholder="paste bearer token" />
-      <button id="auth-save" type="button">Save</button>
-      <button id="auth-clear" type="button" class="ghost-btn">Clear</button>
+             spellcheck="false" placeholder="cole o token bearer" />
+      <button id="auth-save" type="button">Salvar</button>
+      <button id="auth-clear" type="button" class="ghost-btn">Limpar</button>
     </div>
     <p id="auth-msg" class="muted" aria-live="polite"></p>
   </section>
 
   <main id="main" class="layout">
     <section class="card" aria-labelledby="ask-title">
-      <h2 id="ask-title">Ask the knowledge base</h2>
+      <h2 id="ask-title">Pergunte à base de conhecimento</h2>
       <p class="muted">
-        Pick a collection, then ask a question. The assistant will answer
-        only when the corpus has supporting evidence; otherwise it will
-        refuse explicitly.
+        Escolha uma coleção e faça uma pergunta. O assistente só responde
+        quando o corpus tem evidência de suporte; caso contrário, recusa-se
+        explicitamente.
       </p>
 
-      <label for="collection-select">Collection</label>
+      <label for="collection-select">Coleção</label>
       <select id="collection-select" aria-describedby="collection-help">
-        <option value="">— loading —</option>
+        <option value="">— carregando —</option>
       </select>
       <p id="collection-help" class="muted small">
-        A collection is a named bucket of documents inside the configured
-        workspace.
+        Uma coleção é um bucket nomeado de documentos dentro do workspace configurado.
       </p>
 
       <details class="ws-switcher">
         <summary>Workspace: <code id="workspace-current">default</code></summary>
-        <label for="workspace-input" class="sr-only">Workspace id</label>
+        <label for="workspace-input" class="sr-only">ID do workspace</label>
         <div class="ws-row">
           <input id="workspace-input" type="text" autocomplete="off"
-                 spellcheck="false" placeholder="workspace id (e.g. default)" />
-          <button id="workspace-apply" type="button" class="ghost-btn">Apply</button>
+                 spellcheck="false" placeholder="id do workspace (ex.: default)" />
+          <button id="workspace-apply" type="button" class="ghost-btn">Aplicar</button>
         </div>
         <p class="muted small">
-          Different workspaces are isolated. The choice persists in this
-          browser only.
+          Workspaces diferentes são isolados. A escolha persiste apenas
+          neste navegador.
         </p>
       </details>
 
-      <label for="question" class="sr-only">Your question</label>
+      <label for="question" class="sr-only">Sua pergunta</label>
       <textarea id="question" rows="4" maxlength="4000"
-        placeholder="What would you like to know?"></textarea>
+        placeholder="O que você gostaria de saber?"></textarea>
       <div class="actions">
-        <button id="ask" type="button" disabled>Ask</button>
-        <button id="clear" type="button" class="ghost-btn">Clear</button>
+        <button id="ask" type="button" disabled>Perguntar</button>
+        <button id="clear" type="button" class="ghost-btn">Limpar</button>
         <span id="status" class="status" role="status" aria-live="polite">
-          Loading identity…
+          Carregando identidade…
         </span>
       </div>
     </section>
 
     <section class="card" aria-labelledby="answer-title">
-      <h2 id="answer-title">Answer</h2>
+      <h2 id="answer-title">Resposta</h2>
       <div id="answer-state" data-state="idle" class="answer-state"
            aria-live="polite" aria-atomic="true">
         <p class="placeholder" id="answer">
-          Pick a collection, type a question, and press <kbd>Ask</kbd>.
-          Answers come with citations you can verify.
+          Escolha uma coleção, digite uma pergunta e pressione <kbd>Perguntar</kbd>.
+          As respostas vêm com citações que você pode verificar.
         </p>
         <ol id="citations" class="citations" hidden></ol>
       </div>
     </section>
 
     <section class="card" aria-labelledby="limits-title">
-      <h2 id="limits-title">Scope &amp; limits</h2>
+      <h2 id="limits-title">Escopo &amp; limites</h2>
       <ul class="limits">
-        <li>No OCR, no complex tables, no analytics.</li>
-        <li>Answers are grounded in the configured corpus only — refusals are honest, not guesses.</li>
-        <li>No public hosting, no 24/7 monitoring, no perfect accuracy.</li>
-        <li>Bear in mind: embeddings are lossy. Always read the citations.</li>
+        <li>Sem OCR, sem tabelas complexas, sem analytics.</li>
+        <li>As respostas são fundamentadas apenas no corpus configurado — recusas são honestas, não palpites.</li>
+        <li>Sem hospedagem pública, sem monitoramento 24/7, sem precisão perfeita.</li>
+        <li>Lembre-se: embeddings são com perdas. Sempre leia as citações.</li>
       </ul>
     </section>
   </main>
 
   <footer class="footer" id="footer">
-    <small id="footer-note">Local-only proof build.</small>
+    <small id="footer-note">Build de prova local.</small>
   </footer>
 
   <script src="app.js" defer></script>
