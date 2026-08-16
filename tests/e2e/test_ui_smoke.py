@@ -8,8 +8,8 @@ from playwright.sync_api import Page, expect
 
 def test_page_renders_with_default_identity(page: Page) -> None:
     """Static UI loads and renders the configured brand from /v1/identity."""
-    expect(page).to_have_title("Upwork Knowledge Assistant")
-    expect(page.locator("#brand-name")).to_have_text("Upwork Knowledge Assistant")
+    expect(page).to_have_title("Assistente de Conhecimento")
+    expect(page.locator("#brand-name")).to_have_text("Assistente de Conhecimento")
     expect(page.locator("#subtitle")).to_be_visible()
     expect(page.locator("#footer-note")).to_be_visible()
     # The `data-identity` attribute is set after the JSON round-trip
@@ -32,7 +32,7 @@ def test_collection_selector_populated(page: Page) -> None:
     """`/v1/collections` is fetched; the selector is populated."""
     # Wait for the placeholder text to disappear and at least one option
     # with a numeric value (= a real collection id) to appear. The
-    # default seed (`proof-corpus`) is present after TASK-002, so we
+    # default seed is present after seeding, so we
     # also accept an empty-collections state but assert the JS
     # round-tripped either way.
     page.wait_for_function(

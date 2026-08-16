@@ -67,7 +67,7 @@ class Settings(BaseSettings):
         "Local-only proof build. Citations are mandatory — read them."
     )
 
-    # Ingest (TASK-002 / REQ-002)
+    # Ingest (REQ-002)
     # Default 10 MiB per file. Tuneable per deployment.
     ingest_max_bytes: int = 10 * 1024 * 1024
     # Approximate chunk size in characters (~512 tokens worth).
@@ -75,13 +75,13 @@ class Settings(BaseSettings):
     # Overlap in characters (~64 tokens worth).
     chunk_overlap_chars: int = 256
 
-    # Retrieval (TASK-002 / REQ-003, REQ-004)
+    # Retrieval (REQ-003, REQ-004)
     retrieval_top_k: int = 5
     # Refuse if the top cosine similarity is below this threshold.
     # The stub embedding is deterministic but crude: same-topic cosine
     # settles around 0.30–0.65 while off-topic cosine sits around
     # 0.05–0.30. The 0.30 cut-off was tuned empirically against the
-    # TASK-002 corpus (see `proof/gaps.md` for the documented borderline
+    # see the documented borderline
     # cases) — it keeps on-topic questions answerable while refusing
     # the off-topic ones in the acceptance suite.
     retrieval_min_score: float = 0.20

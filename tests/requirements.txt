@@ -12,7 +12,7 @@ pydantic-settings==2.6.*
 asyncpg==0.30.*
 SQLAlchemy==2.0.*
 structlog==24.4.*
-# TASK-002 additions — must match api/requirements.txt exactly.
+# Ingest additions — must match api/requirements.txt exactly.
 pgvector==0.3.*
 pypdf==5.*
 python-multipart==0.0.*
