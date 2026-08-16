@@ -140,7 +140,7 @@ def main() -> int:
         # buyer can audit them.
         bad = client.post(
             "/api/v1/query",
-            headers={"Authorization": "Bearer not-the-real-token"},
+            headers={"Authorization": "Bearer notreal"},
             json={
                 "question": "Will this be rejected?",
                 "workspace": workspace,

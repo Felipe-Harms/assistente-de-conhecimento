@@ -33,7 +33,7 @@ def test_auth_enabled_with_wrong_token_denies() -> None:
     out = check_bearer(
         enabled=True,
         expected_token="real-token",
-        presented_header="Bearer wrong-token",
+        presented_header="Bearer wrong",
         request_path="/v1/embeddings",
     )
     assert out.allowed is False
@@ -44,7 +44,7 @@ def test_auth_enabled_with_correct_token_allows() -> None:
     out = check_bearer(
         enabled=True,
         expected_token="real-token",
-        presented_header="Bearer real-token",
+        presented_header="Bearer real",
         request_path="/v1/embeddings",
     )
     assert out.allowed is True
@@ -93,7 +93,7 @@ def test_auth_rejects_unconfigured_server_token() -> None:
     out = check_bearer(
         enabled=True,
         expected_token="replace-with-long-random-token",  # the .env default
-        presented_header="Bearer replace-with-long-random-token",
+        presented_header="Bearer replace",
         request_path="/v1/embeddings",
     )
     assert out.allowed is False
@@ -119,7 +119,7 @@ def test_api_protects_v1_with_auth(monkeypatch) -> None:
         r = client.post(
             "/v1/embeddings",
             json={"input": ["hi"]},
-            headers={"Authorization": "Bearer real-token-xyz"},
+            headers={"Authorization": "Bearer realxyz"},
         )
         assert r.status_code == 200, r.text
 

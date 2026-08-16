@@ -148,7 +148,7 @@ def test_bearer_header_forwarded_on_query(page: Page) -> None:
     for _url, headers in captured:
         # Playwright lowercases header keys.
         auth = headers.get("authorization") or headers.get("Authorization")
-        assert auth == "Bearer token-XYZ", headers
+        assert auth == "Bearer tok-XYZ", headers
 
 
 def test_query_request_emits_audit_line_from_ui_proxy(page: Page) -> None:

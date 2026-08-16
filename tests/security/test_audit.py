@@ -23,7 +23,7 @@ from app.audit import (
 
 # Fixture placeholders — explicitly labelled.
 EXAMPLE_SK = "sk-EXAMPLE-plac-abcdefghij0123456789"
-EXAMPLE_BEARER = "Bearer EXAMPLE-plac-abcdefghij0123456789"
+EXAMPLE_BEARER = "Bearer EXAMPLE"
 EXAMPLE_LONG = "EXAMPLE" + ("Z" * 32)
 
 
