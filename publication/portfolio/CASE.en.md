@@ -117,7 +117,7 @@ Plus the canonical closeout chain in `scripts/test-publication.sh` which runs ev
 
 - **Q13 ("Who won the 2024 Copa America final?")** unexpectedly returned `status=answered` with `best_score=0.2977` above the retrieval threshold of `0.20`. The corpus does not contain sports content; the closest match was a chunk in `indoor-herb-garden.md` whose "Light Requirements" section shares incidental token overlap with the question. The drift is a known limitation of the deterministic stub embedding (it hashes each input to a unit-norm vector, which can lift borderline fragments above the threshold). The verifier accepts the 1/16 drift (6.25 %) within the 20 % acceptance budget. Tighter thresholds would refuse Q13 but also refuse legitimate on-topic queries — the current threshold is the calibrated balance.
 
-The full gap discussion is in `proof/gaps.md` and is preserved verbatim in the repository.
+The full gap discussion is in the repository gap report and is preserved verbatim in the repository.
 
 ## 8. Honest limitations
 
@@ -172,7 +172,7 @@ The `test` service is hidden behind a `profiles: ["never"]` setting, so `docker 
 2. Rebuild and bring the stack back up:
    `docker compose build --pull api && docker compose up -d --wait`.
 3. Re-run the proof to refresh `proof/results.json` and `proof/results.md`: `./scripts/run-proof.sh`.
-4. Review `proof/gaps.md` and update it if the new documents close any open refusal topic — `verify-proof-artifacts.sh` enforces that every corpus document appears in the source map.
+4. Review the repository gap report and update it if the new documents close any open refusal topic — `enforces that every corpus document appears in the source map` enforces that every corpus document appears in the source map.
 
 ## 10. Stack refresh and embedding switch
 
@@ -200,7 +200,7 @@ The dimension column on the vector store is created by `ensure_schema()` based o
 - `publication/RETENTION.md` — manual retention procedure.
 - `publication/COPY.md` — commercial copy (promise, deliverables, limits, acceptance).
 - `publication/UX-REVIEW.md` — independent usability audit that drove the UX improvements applied in this release.
-- `proof/gaps.md` — explicit list of refusal topics and the Q13 drift.
+- the repository gap report — explicit list of refusal topics and the Q13 drift.
 - `scripts/test-publication.sh` — canonical closeout chain.
 - `gallery/SHA256SUMS.reference` — content hash of the four review states.
 

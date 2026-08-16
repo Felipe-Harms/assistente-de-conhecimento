@@ -117,7 +117,7 @@ Mais a cadeia canônica de fechamento em `scripts/test-publication.sh`, que exec
 
 - **Q13 ("Quem venceu a final da Copa América de 2024?")** inesperadamente retornou `status=answered` com `best_score=0.2977` acima do limiar de recuperação de `0.20`. O corpus não contém conteúdo de esportes; a correspondência mais próxima foi um chunk em `indoor-herb-garden.md` cuja seção "Light Requirements" compartilha sobreposição incidental de tokens com a pergunta. O drift é uma limitação conhecida do embedding stub determinístico (ele faz hash de cada entrada para um vetor unitário, o que pode elevar fragmentos borderline acima do limiar). O verificador aceita o drift de 1/16 (6,25 %) dentro do orçamento de aceitação de 20 %. Limiares mais restritos recusariam Q13 mas também recusariam consultas legítimas on-topic — o limiar atual é o equilíbrio calibrado.
 
-A discussão completa do gap está em `proof/gaps.md` e é preservada literalmente no repositório.
+A discussão completa do gap está em the repository gap report e é preservada literalmente no repositório.
 
 ## 8. Limitações honestas
 
@@ -172,7 +172,7 @@ O serviço `test` está oculto por uma configuração `profiles: ["never"]`, ent
 2. Reconstrua e levante a stack novamente:
    `docker compose build --pull api && docker compose up -d --wait`.
 3. Reexecute a prova para atualizar `proof/results.json` e `proof/results.md`: `./scripts/run-proof.sh`.
-4. Revise `proof/gaps.md` e atualize-o se os novos documentos cobrirem qualquer tópico de recusa em aberto — `verify-proof-artifacts.sh` exige que cada documento do corpus apareça no source map.
+4. Revise the repository gap report e atualize-o se os novos documentos cobrirem qualquer tópico de recusa em aberto — `enforces that every corpus document appears in the source map` exige que cada documento do corpus apareça no source map.
 
 ## 10. Refresh de stack e troca de embedding
 
@@ -200,7 +200,7 @@ A coluna de dimensão no armazenamento vetorial é criada por `ensure_schema()` 
 - `publication/RETENTION.md` — procedimento de retenção manual.
 - `publication/COPY.md` — copy comercial (promessa, entregáveis, limites, aceitação).
 - `publication/UX-REVIEW.md` — auditoria independente de usabilidade que conduziu as melhorias de UX aplicadas nesta versão.
-- `proof/gaps.md` — lista explícita de tópicos de recusa e o drift Q13.
+- the repository gap report — lista explícita de tópicos de recusa e o drift Q13.
 - `scripts/test-publication.sh` — cadeia canônica de fechamento.
 - `gallery/SHA256SUMS.reference` — hash de conteúdo dos quatro estados de revisão.
 

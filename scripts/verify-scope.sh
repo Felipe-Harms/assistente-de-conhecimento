@@ -6,7 +6,7 @@
 #     contract lists (no OCR, no complex tables, no analytics, no managed
 #     hosting, no perfect-accuracy promise, no LLM fine-tuning, no live
 #     external services, no 24/7 operation).
-#   - The Proof corpus (`proof/gaps.md`) lists the topics the assistant
+#   - The Proof corpus (the repository gap report) lists the topics the assistant
 #     is expected to refuse on, so the acceptance run can prove refusal.
 #   - The retention column is wired (`audit_events`) but never auto-runs
 #     a destructive job — `RETENTION_DAYS` is a documented knob.
@@ -51,11 +51,11 @@ echo "== License placeholder =="
 check_phrase README.md "License"
 
 echo "== Proof gaps document refusal surface =="
-if [[ ! -f proof/gaps.md ]]; then
-    red "proof/gaps.md missing"
+if [[ ! -f the repository gap report ]]; then
+    red "the repository gap report missing"
     fail=1
 else
-    note "proof/gaps.md present"
+    note "the repository gap report present"
 fi
 
 echo "== No vendor credentials committed =="

@@ -20,7 +20,7 @@
 ## Como o caso se mantém honesto
 
 - O estudo de caso cita as contagens de testes (`70 segurança + 20 integração + 8 aceitação + 24 ponta a ponta = 122`) literalmente das suítes reproduzíveis.
-- O drift Q13 ("Quem venceu a final da Copa América de 2024?") é declarado como uma limitação conhecida, porque o embedding stub determinístico eleva um fragmento borderline acima do limiar de recuperação. O drift é documentado em `proof/gaps.md` e é preservado literalmente no repositório.
+- O drift Q13 ("Quem venceu a final da Copa América de 2024?") é declarado como uma limitação conhecida, porque o embedding stub determinístico eleva um fragmento borderline acima do limiar de recuperação. O drift é documentado em the repository gap report e é preservado literalmente no repositório.
 - A postura exclusivamente local é declarada explicitamente: sem modo hospedado, sem SLA, sem monitoramento 24/7, sem endpoint público.
 - A troca de trade-off do token em localStorage é declarada como uma escolha deliberada do gate de token estático, não como um padrão recomendado para implantação em produção.
 

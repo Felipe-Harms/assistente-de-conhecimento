@@ -20,7 +20,7 @@
 ## How the case is kept honest
 
 - The case study cites the test counts (`70 security + 20 integration + 8 acceptance + 24 end-to-end = 122`) verbatim from the reproducible test suites.
-- The Q13 drift ("Who won the 2024 Copa America final?") is declared as a known limitation, because the deterministic stub embedding lifts a borderline fragment above the retrieval threshold. The drift is documented in `proof/gaps.md` and is preserved verbatim in the repository.
+- The Q13 drift ("Who won the 2024 Copa America final?") is declared as a known limitation, because the deterministic stub embedding lifts a borderline fragment above the retrieval threshold. The drift is documented in the repository gap report and is preserved verbatim in the repository.
 - The local-only posture is declared explicitly: no hosted mode, no SLA, no 24/7 monitoring, no public endpoint.
 - The token-in-localStorage tradeoff is declared as a deliberate tradeoff of the static-token gate, not as a recommended pattern for production deployment.
 
