@@ -1,0 +1,126 @@
+name: upwork-knowledge-assistant
+
+# =============================================================================
+# Compose contract for TASK-001 (foundation).
+# All four services — db, api, ui, test — must come up with green healthchecks
+# via `docker compose config --quiet && docker compose build --pull && \
+#  docker compose up -d --wait`. The `test` service does not need to be
+# `up`; it is invoked on demand with `docker compose run --rm test ...`.
+# =============================================================================
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: upworkkb-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD required}
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB required}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    networks: [backend]
+    healthcheck:
+      test:
+        - "CMD-SHELL"
+        - "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} -h 127.0.0.1"
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    container_name: upworkkb-api
+    environment:
+      API_HOST: 0.0.0.0
+      API_PORT: "8000"
+      API_LOG_LEVEL: ${API_LOG_LEVEL:-INFO}
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL required}
+      AUTH_ENABLED: ${AUTH_ENABLED:-false}
+      AUTH_TOKEN: ${AUTH_TOKEN:-replace-with-long-random-token}
+      EMBEDDING_BASE_URL: ${EMBEDDING_BASE_URL:-https://api.openai.com/v1}
+      EMBEDDING_API_KEY: ${EMBEDDING_API_KEY:-sk-replace-me-with-real-key}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-text-embedding-3-small}
+      EMBEDDING_DIM: ${EMBEDDING_DIM:-1536}
+      EMBEDDING_STUB: ${EMBEDDING_STUB:-true}
+      RETENTION_DAYS: ${RETENTION_DAYS:-90}
+      APP_BRAND_NAME: ${APP_BRAND_NAME:-Upwork Knowledge Assistant}
+      APP_TAGLINE: ${APP_TAGLINE:-Local, grounded answers from a curated corpus — refuses when evidence is missing.}
+      APP_ACCENT_COLOR: ${APP_ACCENT_COLOR:-#0284c7}
+      APP_LOGO_URL: ${APP_LOGO_URL:-}
+      APP_FOOTER_NOTE: ${APP_FOOTER_NOTE:-Local-only proof build. Citations are mandatory — read them.}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [backend]
+    healthcheck:
+      test:
+        - "CMD"
+        - "curl"
+        - "-fsS"
+        - "http://127.0.0.1:8000/readyz"
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  ui:
+    build:
+      context: .
+      dockerfile: ui/Dockerfile
+    container_name: upworkkb-ui
+    ports:
+      - "${UI_PORT:-8080}:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    networks: [backend, frontend]
+    healthcheck:
+      test:
+        - "CMD"
+        - "wget"
+        - "-qO-"
+        - "http://127.0.0.1/healthz-ui"
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  test:
+    build:
+      context: .
+      dockerfile: test/Dockerfile
+    container_name: upworkkb-test
+    # Long-lived idle container — stays up so `docker compose build --pull &&
+    # docker compose up -d --wait` produces a runnable test image. Override
+    # the command on demand with `docker compose run --rm test pytest …`.
+    environment:
+      PYTEST_ADDOPTS: ${PYTEST_ADDOPTS:--ra}
+      AUTH_ENABLED: ${AUTH_ENABLED:-false}
+      AUTH_TOKEN: ${AUTH_TOKEN:-replace-with-long-random-token}
+      EMBEDDING_STUB: ${EMBEDDING_STUB:-true}
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL required}
+    networks: [backend]
+    command: ["tail", "-f", "/dev/null"]
+    healthcheck:
+      # Smoke-level — confirms Playwright + pytest are importable inside the
+      # test image. Uses `importlib.metadata` because the `playwright` package
+      # does not expose `__version__`.
+      test: ["CMD-SHELL", "python -c 'from importlib.metadata import version; import pytest; assert version(\"playwright\"); assert pytest.__version__'"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  pg_data:
+    name: upworkkb-pgdata
+
+networks:
+  backend:
+    name: upworkkb-backend
+  frontend:
+    name: upworkkb-frontend

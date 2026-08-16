@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0f172a" />
+  <title id="page-title">Upwork Knowledge Assistant</title>
+  <link rel="icon" href="data:," />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <header class="topbar" role="banner">
+    <div class="brand">
+      <img id="brand-logo" class="brand-logo" alt="" hidden />
+      <div>
+        <h1 id="brand-name" class="brand-name">Upwork Knowledge Assistant</h1>
+        <p class="subtitle" id="subtitle">Loading identity…</p>
+      </div>
+    </div>
+    <div class="topbar-status">
+      <span id="auth-pill" class="pill pill-muted" hidden>Auth</span>
+      <button id="auth-toggle" type="button" class="ghost-btn" hidden>
+        Configure token
+      </button>
+    </div>
+  </header>
+
+  <section id="auth-panel" class="auth-panel" hidden aria-labelledby="auth-panel-title">
+    <h2 id="auth-panel-title">Bearer token</h2>
+    <p class="muted">
+      The API is configured with <code>AUTH_ENABLED=true</code>. Paste the
+      pre-shared token; it is stored only in this browser's local storage
+      and sent as <code>Authorization: Bearer …</code> on every request.
+    </p>
+    <label for="auth-token" class="sr-only">Bearer token</label>
+    <div class="auth-row">
+      <input id="auth-token" type="password" autocomplete="off"
+             spellcheck="false" placeholder="paste bearer token" />
+      <button id="auth-save" type="button">Save</button>
+      <button id="auth-clear" type="button" class="ghost-btn">Clear</button>
+    </div>
+    <p id="auth-msg" class="muted" aria-live="polite"></p>
+  </section>
+
+  <main id="main" class="layout">
+    <section class="card" aria-labelledby="ask-title">
+      <h2 id="ask-title">Ask the knowledge base</h2>
+      <p class="muted">
+        Pick a collection, then ask a question. The assistant will answer
+        only when the corpus has supporting evidence; otherwise it will
+        refuse explicitly.
+      </p>
+
+      <label for="collection-select">Collection</label>
+      <select id="collection-select" aria-describedby="collection-help">
+        <option value="">— loading —</option>
+      </select>
+      <p id="collection-help" class="muted small">
+        A collection is a named bucket of documents inside the configured
+        workspace.
+      </p>
+
+      <details class="ws-switcher">
+        <summary>Workspace: <code id="workspace-current">default</code></summary>
+        <label for="workspace-input" class="sr-only">Workspace id</label>
+        <div class="ws-row">
+          <input id="workspace-input" type="text" autocomplete="off"
+                 spellcheck="false" placeholder="workspace id (e.g. default)" />
+          <button id="workspace-apply" type="button" class="ghost-btn">Apply</button>
+        </div>
+        <p class="muted small">
+          Different workspaces are isolated. The choice persists in this
+          browser only.
+        </p>
+      </details>
+
+      <label for="question" class="sr-only">Your question</label>
+      <textarea id="question" rows="4" maxlength="4000"
+        placeholder="What would you like to know?"></textarea>
+      <div class="actions">
+        <button id="ask" type="button" disabled>Ask</button>
+        <button id="clear" type="button" class="ghost-btn">Clear</button>
+        <span id="status" class="status" role="status" aria-live="polite">
+          Loading identity…
+        </span>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="answer-title">
+      <h2 id="answer-title">Answer</h2>
+      <div id="answer-state" data-state="idle" class="answer-state"
+           aria-live="polite" aria-atomic="true">
+        <p class="placeholder" id="answer">
+          Pick a collection, type a question, and press <kbd>Ask</kbd>.
+          Answers come with citations you can verify.
+        </p>
+        <ol id="citations" class="citations" hidden></ol>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="limits-title">
+      <h2 id="limits-title">Scope &amp; limits</h2>
+      <ul class="limits">
+        <li>No OCR, no complex tables, no analytics.</li>
+        <li>Answers are grounded in the configured corpus only — refusals are honest, not guesses.</li>
+        <li>No public hosting, no 24/7 monitoring, no perfect accuracy.</li>
+        <li>Bear in mind: embeddings are lossy. Always read the citations.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="footer" id="footer">
+    <small id="footer-note">Local-only proof build.</small>
+  </footer>
+
+  <script src="app.js" defer></script>
+</body>
+</html>

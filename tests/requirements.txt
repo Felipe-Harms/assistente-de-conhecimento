@@ -1,0 +1,20 @@
+# Test deps — installed inside the test image only. The api code is mounted
+# at /srv/api inside the test container so the security smoke suite can
+# import it directly; that means we also need the api runtime deps here
+# (kept in lockstep with api/requirements.txt).
+pytest==8.3.*
+httpx==0.27.*
+playwright==1.49.*
+fastapi==0.115.*
+uvicorn[standard]==0.32.*
+pydantic==2.9.*
+pydantic-settings==2.6.*
+asyncpg==0.30.*
+SQLAlchemy==2.0.*
+structlog==24.4.*
+# TASK-002 additions — must match api/requirements.txt exactly.
+pgvector==0.3.*
+pypdf==5.*
+python-multipart==0.0.*
+# Questions + source-map YAML for proof.run_eval.
+pyyaml==6.0.*

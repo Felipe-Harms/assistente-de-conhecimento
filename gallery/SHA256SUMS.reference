@@ -1,0 +1,7 @@
+# Canonical SHA-256 reference for the four required gallery states.
+# Re-captured at 2026-08-15T22:58:56Z. Schema: <sha256>  <state>.png
+
+3917e20e0438f83747debd99c74aa664da3a5d92c25c737ebf0930d956c85727  01-idle.png
+0bdf6276bd2944f8fe7eda23151af1e28f17209f58091b96dd1a356bfdfa0e0f  02-answered.png
+efa2153ae6672245280c116e64e0bd55405d3bda1f73e710b94db83f35f9f8fd  03-refused.png
+5cc0cad53571bc83259c693ac7f24b77894758dfda3966df8a6136b85d75da84  04-auth-error.png

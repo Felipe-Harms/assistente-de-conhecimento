@@ -1,0 +1,86 @@
+# === Secrets and local config — never committed ===
+.env
+.env.*
+!.env.example
+*.env.local
+
+# === Python / venv ===
+__pycache__/
+tests/__pycache__/
+scripts/__pycache__/
+api/__pycache__/
+api/app/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+build/
+dist/
+
+# === Node / UI (if added later) ===
+node_modules/
+.parcel-cache/
+.vite/
+
+# === Docker / Compose ===
+.docker/
+.docker-compose.override.yml
+
+# === IDE / editor ===
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# === Test artifacts ===
+.pytest_cache/
+.coverage
+test-results/
+playwright-report/
+test-output/
+.playwright/
+tests/.tmp/
+
+# === Local data ===
+# data/ holds generated runtime state; the only thing we ship publicly
+# is the curated demo corpus (data/corpus/) — allow it explicitly.
+data/*
+!data/corpus/
+!data/corpus/**
+
+# === Logs ===
+# *.log covers internal logs; if a specific log file must ship,
+# add a `!<path>` exception next to this block.
+*.log
+
+# === Internal project artifacts (never public) ===
+.wolfpack/
+backups/
+proof/
+
+# === Backup files (any prior cycle) ===
+*.bak
+*.bak-*
+data/corpus/*.bak*
+ui/*.bak*
+api/**/*.bak*
+
+# === Internal publication archive (commercial-customer kit, not public) ===
+publication/internal-archive/
+publication/*.bak-*
+
+# === Postgres local state ===
+*.sqlite
+*.sqlite3
+*.db-journal
+pgdata/
