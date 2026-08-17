@@ -97,6 +97,10 @@ jobs:
       # tests/acceptance` — not on the runner — so exclude it from the
       # runner pytest step.
       - name: pytest (security + integration + acceptance + unit)
+        # Runner-side pytest uses GH's services: postgres on localhost:5432;
+        # the api container reaches db:5432 via compose. Different hosts, same role.
+        env:
+          DATABASE_URL: postgresql+asyncpg://upworkkb:change-me-locally-only@localhost:5432/upworkkb
         working-directory: ${{ github.workspace }}
         run: |
           PYTHONPATH=api python -m pytest -q \
