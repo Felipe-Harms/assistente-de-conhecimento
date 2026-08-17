@@ -47,7 +47,11 @@ async def get_pool() -> asyncpg.Pool:
             command_timeout=30,
         )
         # The pgvector codec must be registered on every connection.
+        # The `vector` type only exists once the extension is loaded,
+        # so create it first — `IF NOT EXISTS` makes this safe to run
+        # on every pool creation (idempotent).
         async with _pool.acquire() as conn:
+            await conn.execute("CREATE EXTENSION IF NOT EXISTS vector")
             await register_vector(conn)
         _registered_dim = dim
         log.info("asyncpg pool ready (dim=%d)", dim)
