@@ -34,7 +34,6 @@ jobs:
       AUTH_ENABLED: "false"
       EMBEDDING_DIM: "1536"
       RETRIEVAL_MIN_SCORE: "0.20"
-      DATABASE_URL: postgresql+asyncpg://upworkkb:change-me-locally-only@localhost:5432/upworkkb
       POSTGRES_HOST: localhost
       POSTGRES_PORT: "5432"
 
