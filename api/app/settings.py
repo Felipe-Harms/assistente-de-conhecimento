@@ -77,14 +77,28 @@ class Settings(BaseSettings):
 
     # Retrieval (REQ-003, REQ-004)
     retrieval_top_k: int = 5
-    # Refuse if the top cosine similarity is below this threshold.
-    # The stub embedding is deterministic but crude: same-topic cosine
-    # settles around 0.30–0.65 while off-topic cosine sits around
-    # 0.05–0.30. The 0.30 cut-off was tuned empirically against the
-    # see the documented borderline
-    # cases) — it keeps on-topic questions answerable while refusing
-    # the off-topic ones in the acceptance suite.
+    # Per-citation relevance filter. The retrieval layer keeps the top-k
+    # candidates by cosine and the API drops every chunk below
+    # ``retrieval_min_score`` before returning them. The top-score check
+    # also gates the answer envelope (no answer without a clearing
+    # citation). The stub (token-only hash fold + stemming) puts
+    # on-topic cosine around 0.25-0.70 and off-topic cosine close to
+    # 0, so 0.20 separates well. Live OpenAI-compatible embeddings push
+    # on-topic well above 0.50; operators should raise the threshold
+    # for those deployments.
     retrieval_min_score: float = 0.20
+
+    # Chat / LLM generation (REQ-004). Mirrors EMBEDDING_* but for the
+    # completion endpoint. ``chat_stub=true`` returns a deterministic
+    # extractive snippet; set ``chat_stub=false`` to wire a real
+    # OpenAI-compatible chat endpoint. Tests rely on the stub.
+    chat_base_url: str = "https://api.openai.com/v1"
+    chat_api_key: str = "sk-replace-me-with-real-key"
+    chat_model: str = "gpt-4o-mini"
+    chat_stub: bool = True
+    chat_max_tokens: int = 400
+    chat_temperature: float = 0.2
+    chat_timeout_s: float = 30.0
 
 
 def get_settings() -> Settings:

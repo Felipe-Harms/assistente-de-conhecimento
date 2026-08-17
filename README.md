@@ -87,7 +87,8 @@ As variáveis de ambiente são lidas exclusivamente de `.env` (veja `.env.exampl
 - `AUTH_ENABLED` — quando `true`, exige token bearer nas requisições.
 - `AUTH_TOKEN` — token bearer pré-compartilhado.
 - `EMBEDDING_STUB` — quando `true`, usa embedding determinístico local (padrão); quando `false`, usa a API OpenAI.
-- `RETRIEVAL_MIN_SCORE` — limiar de similaridade do cosseno para aceitar uma resposta.
+- `CHAT_STUB` — quando `true`, geração por LLM cai em stub determinístico que devolve um trecho extraído da citação de topo (padrão; usado pelos testes/CI sem rede); quando `false`, gera via `POST {CHAT_BASE_URL}/chat/completions` consumindo **somente** os chunks recuperados e recusando com `INSUFFICIENT_EVIDENCE` quando não houver evidência.
+- `RETRIEVAL_MIN_SCORE` — limiar de similaridade do cosseno para aceitar uma resposta; filtra cada citação individualmente, então citações abaixo do limiar são descartadas antes da geração.
 - `UI_PORT` — porta para a UI nginx (padrão `8080`).
 
 ## Segurança

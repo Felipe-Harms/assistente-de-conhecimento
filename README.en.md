@@ -88,7 +88,8 @@ Environment variables are read exclusively from `.env` (see `.env.example`). Key
 - `AUTH_ENABLED` — when `true`, requires bearer token on requests.
 - `AUTH_TOKEN` — pre-shared bearer token.
 - `EMBEDDING_STUB` — when `true`, uses deterministic local embedding (default); when `false`, uses OpenAI API.
-- `RETRIEVAL_MIN_SCORE` — cosine similarity threshold to accept an answer.
+- `CHAT_STUB` — when `true`, LLM generation falls back to a deterministic stub that surfaces the top-ranked citation (default; used by tests/CI offline); when `false`, calls `POST {CHAT_BASE_URL}/chat/completions` and restricts the answer to the retrieved chunks, emitting `INSUFFICIENT_EVIDENCE` when the context does not support the question.
+- `RETRIEVAL_MIN_SCORE` — per-citation cosine threshold. Citations below it are dropped before the model sees the context or the response lists them.
 - `UI_PORT` — port for the nginx UI (default `8080`).
 
 ## Security

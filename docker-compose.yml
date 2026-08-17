@@ -46,6 +46,13 @@ services:
       EMBEDDING_MODEL: ${EMBEDDING_MODEL:-text-embedding-3-small}
       EMBEDDING_DIM: ${EMBEDDING_DIM:-1536}
       EMBEDDING_STUB: ${EMBEDDING_STUB:-true}
+      CHAT_BASE_URL: ${CHAT_BASE_URL:-https://api.openai.com/v1}
+      CHAT_API_KEY: ${CHAT_API_KEY:-sk-replace-me-with-real-key}
+      CHAT_MODEL: ${CHAT_MODEL:-gpt-4o-mini}
+      CHAT_STUB: ${CHAT_STUB:-true}
+      CHAT_MAX_TOKENS: ${CHAT_MAX_TOKENS:-400}
+      CHAT_TEMPERATURE: ${CHAT_TEMPERATURE:-0.2}
+      CHAT_TIMEOUT_S: ${CHAT_TIMEOUT_S:-30}
       RETENTION_DAYS: ${RETENTION_DAYS:-90}
       APP_BRAND_NAME: ${APP_BRAND_NAME:-Upwork Knowledge Assistant}
       APP_TAGLINE: ${APP_TAGLINE:-Local, grounded answers from a curated corpus — refuses when evidence is missing.}
@@ -102,6 +109,7 @@ services:
       AUTH_ENABLED: ${AUTH_ENABLED:-false}
       AUTH_TOKEN: ${AUTH_TOKEN:-replace-with-long-random-token}
       EMBEDDING_STUB: ${EMBEDDING_STUB:-true}
+      CHAT_STUB: ${CHAT_STUB:-true}
       DATABASE_URL: ${DATABASE_URL:?DATABASE_URL required}
     networks: [backend]
     # Mount the host's ./proof into /srv/repo/proof so that

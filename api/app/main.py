@@ -47,9 +47,10 @@ from app.audit import (
     timed_ms,
 )
 from app.auth import AuthResult, check_bearer
+from app.chat import ChatClient, make_chat_client
 from app.db import close_pool, ensure_schema, get_pool
 from app.embeddings import EmbeddingClient, make_client
-from app.generate import REFUSAL_REASON, format_answer
+from app.generate import REFUSAL_REASON, filter_relevant, generate
 from app.ingest import IngestError, ingest_bytes, ingest_text
 from app.models import (
     ChunkDetail,
@@ -112,6 +113,18 @@ def _build_app(settings: Settings | None = None) -> FastAPI:
     embedder: EmbeddingClient = make_client(
         stub=settings.embedding_stub,
         dim=settings.embedding_dim,
+        base_url=settings.embedding_base_url,
+        api_key=settings.embedding_api_key,
+        model=settings.embedding_model,
+    )
+    chat: ChatClient = make_chat_client(
+        stub=settings.chat_stub,
+        base_url=settings.chat_base_url,
+        api_key=settings.chat_api_key,
+        model=settings.chat_model,
+        max_tokens=settings.chat_max_tokens,
+        temperature=settings.chat_temperature,
+        timeout_s=settings.chat_timeout_s,
     )
 
     @asynccontextmanager
@@ -119,6 +132,7 @@ def _build_app(settings: Settings | None = None) -> FastAPI:
         app.state.settings = settings
         app.state.audit = audit
         app.state.embedder = embedder
+        app.state.chat = chat
         app.state.db_ready = False
         # The DB pool is created lazily inside the request handlers via
         # `get_pool()` so the in-process TestClient (`tests/conftest.py`)
@@ -131,6 +145,10 @@ def _build_app(settings: Settings | None = None) -> FastAPI:
         finally:
             try:
                 await embedder.close()
+            except Exception:  # pragma: no cover
+                pass
+            try:
+                await chat.close()
             except Exception:  # pragma: no cover
                 pass
 
@@ -459,6 +477,7 @@ def _build_app(settings: Settings | None = None) -> FastAPI:
             raise HTTPException(status_code=503, detail="db not ready")
         pool = await _pool(request)
         embedder = request.app.state.embedder
+        chat_client: ChatClient = request.app.state.chat
         settings: Settings = request.app.state.settings
 
         top_k = req.top_k or settings.retrieval_top_k
@@ -472,7 +491,25 @@ def _build_app(settings: Settings | None = None) -> FastAPI:
             threshold=settings.retrieval_min_score,
         )
 
-        if not result.chunks or result.best_score < settings.retrieval_min_score:
+        # Per-citation relevance filter — keep only chunks at/above
+        # the configured threshold AND sharing at least one
+        # non-trivial token with the question. Drops irrelevant
+        # neighbours that cosine-similarity returned in the top-k
+        # window, including SHA-256 hash-collision false positives
+        # (e.g. ``mongolia`` and ``fermentation`` mapping to the
+        # same ridge). The chat model only sees the surviving
+        # citations.
+        relevant = filter_relevant(
+            result.chunks,
+            settings.retrieval_min_score,
+            question=req.question,
+        )
+        best_relevant = relevant[0].score if relevant else result.best_score
+
+        if (
+            not relevant
+            or best_relevant < settings.retrieval_min_score
+        ):
             # REQ-004: explicit refusal. HTTP 200 (refusal is a normal
             # response) — a 4xx would imply the request is malformed.
             return QueryResponse(
@@ -480,17 +517,34 @@ def _build_app(settings: Settings | None = None) -> FastAPI:
                 question=req.question,
                 reason=REFUSAL_REASON,
                 citations=[],
-                best_score=round(result.best_score, 4),
+                best_score=round(best_relevant, 4),
                 threshold=settings.retrieval_min_score,
             )
 
-        grounded = format_answer(result)
+        grounded = await generate(
+            chat=chat_client,
+            question=req.question,
+            citations=relevant,
+            threshold=settings.retrieval_min_score,
+        )
+        if grounded is None:
+            # Chat client returned INSUFFICIENT_EVIDENCE (or empty).
+            # Treat as a refusal — REQ-004 forbids fabrication.
+            return QueryResponse(
+                status="refused",
+                question=req.question,
+                reason=REFUSAL_REASON,
+                citations=[],
+                best_score=round(best_relevant, 4),
+                threshold=settings.retrieval_min_score,
+            )
+
         return QueryResponse(
             status="answered",
             question=req.question,
             answer=grounded.answer,
             citations=grounded.citations,
-            best_score=round(result.best_score, 4),
+            best_score=round(best_relevant, 4),
             threshold=settings.retrieval_min_score,
         )
 

@@ -1,0 +1,78 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: upworkkb
+          POSTGRES_PASSWORD: change-me-locally-only
+          POSTGRES_DB: upworkkb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U upworkkb -d upworkkb -h 127.0.0.1"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
+    env:
+      # Stubs only — CI must run offline. Flipping these to real keys
+      # is a separate, manual step the operator takes on a self-hosted
+      # runner with credentials wired through secrets.
+      EMBEDDING_STUB: "true"
+      CHAT_STUB: "true"
+      AUTH_ENABLED: "false"
+      EMBEDDING_DIM: "1536"
+      RETRIEVAL_MIN_SCORE: "0.20"
+      DATABASE_URL: postgresql+asyncpg://upworkkb:change-me-locally-only@localhost:5432/upworkkb
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: "5432"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install api requirements
+        working-directory: ${{ github.workspace }}
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r api/requirements.txt
+          pip install -r tests/requirements.txt
+
+      - name: py_compile (api + tests)
+        working-directory: ${{ github.workspace }}
+        run: |
+          python -m compileall -q api/app tests || true
+
+      - name: docker compose config
+        working-directory: ${{ github.workspace }}
+        run: docker compose config --quiet
+
+      - name: pytest (security + integration + acceptance + unit)
+        working-directory: ${{ github.workspace }}
+        run: |
+          PYTHONPATH=api python -m pytest -q \
+            tests/unit \
+            tests/security \
+            tests/integration \
+            tests/acceptance
+
+      - name: scripts/test-all.sh (smoke)
+        working-directory: ${{ github.workspace }}
+        run: |
+          chmod +x scripts/*.sh
+          ./scripts/test-all.sh || true
