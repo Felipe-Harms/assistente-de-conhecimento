@@ -503,6 +503,11 @@ def _build_app(settings: Settings | None = None) -> FastAPI:
             result.chunks,
             settings.retrieval_min_score,
             question=req.question,
+            # Token-overlap gate is a stub-only defence against SHA-256
+            # hash-collision false positives. Live OpenAI embeddings
+            # push on-topic cosine well above the threshold with no
+            # collisions, so the cosine filter alone is correct there.
+            token_overlap=settings.embedding_stub,
         )
         best_relevant = relevant[0].score if relevant else result.best_score
 

@@ -85,6 +85,55 @@ def test_filter_relevant_question_none_skips_overlap_gate() -> None:
     assert len(kept) == 1
 
 
+def test_filter_relevant_token_overlap_false_keeps_collision_chunk() -> None:
+    """Live-embedding deployments (``EMBEDDING_STUB=false``) must NOT
+    apply the token overlap gate — cosine alone is the authoritative
+    signal there. A citation that the stub would refuse as a
+    SHA-256 collision must survive when ``token_overlap=False``.
+    """
+    cite = _cite(
+        0.50,
+        "Fermentation Time Most vegetable ferments are ready in 5 to 14 days at "
+        "room temperature.",
+    )
+    kept = filter_relevant(
+        [cite],
+        0.20,
+        question="What is the capital of Mongolia?",
+        token_overlap=False,
+    )
+    assert len(kept) == 1
+    assert kept[0].score == 0.50
+
+
+def test_filter_relevant_token_overlap_false_uses_cosine_only() -> None:
+    """When ``token_overlap=False`` the question is ignored: only the
+    cosine threshold decides what survives."""
+    cite = _cite(0.50, "any topic with zero overlap with the question")
+    kept = filter_relevant(
+        [cite],
+        0.20,
+        question="completely unrelated question about something else",
+        token_overlap=False,
+    )
+    assert len(kept) == 1
+    assert kept[0].score == 0.50
+
+
+def test_filter_relevant_token_overlap_default_matches_legacy() -> None:
+    """``token_overlap`` defaults to ``True`` so the SHA-256 collision
+    defence stays on for the default stub build (CI + dev)."""
+    cite = _cite(
+        0.50,
+        "Fermentation Time Most vegetable ferments are ready in 5 to 14 days at "
+        "room temperature.",
+    )
+    kept = filter_relevant(
+        [cite], 0.20, question="What is the capital of Mongolia?"
+    )
+    assert kept == []
+
+
 def test_stub_chat_returns_insufficient_evidence_when_no_citations() -> None:
     client = StubChatClient()
     out = asyncio.run(client.complete("anything", []))

@@ -50,6 +50,7 @@ def filter_relevant(
     threshold: float,
     *,
     question: str | None = None,
+    token_overlap: bool = True,
 ) -> list[Citation]:
     """Per-citation relevance filter.
 
@@ -57,22 +58,32 @@ def filter_relevant(
     ``threshold``. The returned list preserves the original cosine
     ordering so the top chunk is still index 0.
 
-    When ``question`` is supplied, the filter applies a second
-    gate: every surviving citation must share at least one
-    non-trivial token (post-stopword, post-length) with the
-    question. This catches SHA-256 hash-collision false positives
-    where two unrelated tokens map to the same ridge — e.g.
-    ``mongolia`` and ``fermentation`` both hashing to idx 533 with
-    sign +1, producing cosine 0.50 between ``What is the capital
-    of Mongolia?`` and a ``Fermentation Time`` chunk despite zero
-    real vocabulary overlap. Without this gate the cosine-only
-    filter passes such collisions and the system answers an
-    off-corpus question with garbage from an unrelated chunk.
-    Passing ``question=None`` skips the overlap gate (legacy
+    When ``question`` is supplied AND ``token_overlap=True`` (the
+    default), the filter applies a second gate: every surviving
+    citation must share at least one non-trivial token
+    (post-stopword, post-length) with the question. This catches
+    SHA-256 hash-collision false positives produced by the local
+    deterministic stub where two unrelated tokens map to the same
+    ridge — e.g. ``mongolia`` and ``fermentation`` both hashing to
+    idx 533 with sign +1, producing cosine 0.50 between ``What is
+    the capital of Mongolia?`` and a ``Fermentation Time`` chunk
+    despite zero real vocabulary overlap. Without this gate the
+    cosine-only filter passes such collisions and the system
+    answers an off-corpus question with garbage from an unrelated
+    chunk.
+
+    With live OpenAI-compatible embeddings the cosine signal is
+    strong enough that the token overlap gate becomes a liability
+    (real embeddings push on-topic well above the threshold with
+    no false positives and overlap can drop legitimate chunks when
+    the question uses paraphrased vocabulary). Callers that wire
+    ``EMBEDDING_STUB=false`` must pass ``token_overlap=False`` so
+    the cosine filter is the only gate. ``question=None`` skips
+    the overlap gate regardless of ``token_overlap`` (legacy
     callers).
     """
     kept = [c for c in citations if c.score >= threshold]
-    if question is not None:
+    if question is not None and token_overlap:
         q_tokens = frozenset(_tokenize(question))
         kept = [c for c in kept if q_tokens & frozenset(_tokenize(c.text))]
     return kept

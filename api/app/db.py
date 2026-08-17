@@ -64,10 +64,22 @@ async def close_pool() -> None:
 async def ensure_schema(embedding_dim: int) -> None:
     """Idempotent migration — safe to run on every app startup.
 
-    Existing initial-phase volumes are upgraded in place:
-      - CREATE TABLE IF NOT EXISTS for `collections`
-      - ADD COLUMN IF NOT EXISTS for `chunks.collection_id` and
-        `chunks.embedding`
+    Creates the minimum schema required by the API and upgrades an
+    existing initial-phase volume in place:
+
+      - ``CREATE EXTENSION IF NOT EXISTS vector``
+      - ``CREATE TABLE IF NOT EXISTS documents (...)``  — required even
+        on Action runners where db/init.sql was not applied (e.g. when
+        the volume already exists from a previous job).
+      - ``CREATE TABLE IF NOT EXISTS chunks (...)``     — same reason.
+      - ``CREATE TABLE IF NOT EXISTS collections (...)`` — initial-phase
+        table the API route relies on.
+      - ``ADD COLUMN IF NOT EXISTS`` for ``chunks.collection_id`` and
+        ``chunks.embedding`` to upgrade existing initial-phase volumes.
+
+    Every statement is idempotent so a fresh container that mounted
+    db/init.sql and a stale container that did not both land on the
+    same shape after one call.
     """
     pool = await get_pool()
     async with pool.acquire() as conn:
@@ -79,6 +91,37 @@ async def ensure_schema(embedding_dim: int) -> None:
             _registered_dim = embedding_dim
 
         stmts: list[str] = [
+            "CREATE EXTENSION IF NOT EXISTS vector",
+            """
+            CREATE TABLE IF NOT EXISTS documents (
+                id           BIGSERIAL PRIMARY KEY,
+                workspace    TEXT NOT NULL DEFAULT 'default',
+                source       TEXT NOT NULL,
+                mime_type    TEXT NOT NULL,
+                file_name    TEXT NOT NULL,
+                byte_size    BIGINT NOT NULL,
+                content_sha  TEXT NOT NULL,
+                metadata     JSONB NOT NULL DEFAULT '{}'::JSONB,
+                created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                UNIQUE (workspace, content_sha)
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS chunks (
+                id           BIGSERIAL PRIMARY KEY,
+                document_id  BIGINT NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
+                workspace    TEXT NOT NULL DEFAULT 'default',
+                ordinal      INT NOT NULL,
+                content      TEXT NOT NULL,
+                content_sha  TEXT NOT NULL,
+                page         INT,
+                section      TEXT,
+                char_start   INT,
+                char_end     INT,
+                metadata     JSONB NOT NULL DEFAULT '{}'::JSONB,
+                created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+            )
+            """,
             """
             CREATE TABLE IF NOT EXISTS collections (
                 id           BIGSERIAL PRIMARY KEY,
@@ -91,6 +134,8 @@ async def ensure_schema(embedding_dim: int) -> None:
             """,
             "ALTER TABLE chunks ADD COLUMN IF NOT EXISTS collection_id BIGINT",
             "ALTER TABLE chunks ADD COLUMN IF NOT EXISTS embedding VECTOR(" + str(embedding_dim) + ")",
+            "CREATE INDEX IF NOT EXISTS chunks_workspace_idx ON chunks(workspace)",
+            "CREATE INDEX IF NOT EXISTS chunks_document_idx ON chunks(document_id)",
             "CREATE INDEX IF NOT EXISTS chunks_collection_idx ON chunks(collection_id)",
         ]
         for stmt in stmts:

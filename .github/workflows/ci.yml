@@ -46,6 +46,20 @@ jobs:
         with:
           python-version: "3.12"
 
+      # Bring up the full stack via docker compose so PostgreSQL
+      # receives db/init.sql (mounted under docker-entrypoint-initdb.d)
+      # and the api service can run its first request against the
+      # schema. We rely on the compose healthchecks — `--wait` blocks
+      # until db/api/ui report healthy, so subsequent steps can assume
+      # a live API on http://api:8000.
+      - name: seed .env from template
+        working-directory: ${{ github.workspace }}
+        run: cp .env.example .env
+
+      - name: docker compose up (db + api + ui + test)
+        working-directory: ${{ github.workspace }}
+        run: docker compose up -d --build --wait
+
       - name: Install api requirements
         working-directory: ${{ github.workspace }}
         run: |
@@ -56,7 +70,7 @@ jobs:
       - name: py_compile (api + tests)
         working-directory: ${{ github.workspace }}
         run: |
-          python -m compileall -q api/app tests || true
+          python -m compileall -q api/app tests
 
       - name: docker compose config
         working-directory: ${{ github.workspace }}
@@ -71,8 +85,17 @@ jobs:
             tests/integration \
             tests/acceptance
 
-      - name: scripts/test-all.sh (smoke)
+      - name: scripts/run-proof.sh (REQ-005)
         working-directory: ${{ github.workspace }}
         run: |
           chmod +x scripts/*.sh
-          ./scripts/test-all.sh || true
+          ./scripts/run-proof.sh
+
+      - name: scripts/test-all.sh (REQ-008 / REQ-010 smoke)
+        working-directory: ${{ github.workspace }}
+        run: |
+          ./scripts/test-all.sh
+
+      - name: docker compose down (preserve pg_data volume)
+        working-directory: ${{ github.workspace }}
+        run: docker compose down --remove-orphans

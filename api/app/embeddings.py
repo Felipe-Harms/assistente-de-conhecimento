@@ -119,6 +119,16 @@ class HttpEmbeddingClient:
             raise EmbeddingError(
                 f"embedding provider returned malformed body: {payload!r}"
             ) from exc
+        # Dimension guard — upstream embeddings must match the
+        # configured ``dim`` so the pgvector column type stays
+        # consistent across providers. A mismatch is a configuration
+        # error, not a transient failure.
+        for idx, vec in enumerate(vectors):
+            if len(vec) != self.dim:
+                raise EmbeddingError(
+                    f"embedding vector dim mismatch at index {idx}: "
+                    f"expected {self.dim}, got {len(vec)}"
+                )
         return vectors
 
     async def close(self) -> None:

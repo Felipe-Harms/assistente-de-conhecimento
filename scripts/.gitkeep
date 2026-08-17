@@ -1,3 +1,5 @@
 # Scripts placeholder.
 # Verification/destroy helpers (verify-proof-artifacts.sh, smoke-ui.sh,
-# test-all.sh, verify-handoff.sh, verify-scope.sh) land in initial/final phases.
+# test-all.sh) land in initial/final phases. (2026-08-17: verify-handoff.sh
+# and verify-scope.sh were removed as out-of-flow — see
+# .wolfpack/proofs/0a3c93b8-12cb-4b80-90a3-b2d1c3817a1e/f5-cleanup-2026-08-17.md.)
