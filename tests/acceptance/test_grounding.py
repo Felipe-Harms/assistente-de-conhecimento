@@ -126,6 +126,7 @@ def test_answered_includes_section_or_page_when_available(
         text=(
             "# Markdown\n\n"
             "## Subsections\n\n"
+            "Subsections are nested headings inside a section. "
             "Markdown allows headings, lists, and code blocks. "
             "Headings are formed with hash characters."
         ),
