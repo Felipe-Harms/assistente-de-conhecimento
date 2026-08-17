@@ -104,6 +104,14 @@ services:
       EMBEDDING_STUB: ${EMBEDDING_STUB:-true}
       DATABASE_URL: ${DATABASE_URL:?DATABASE_URL required}
     networks: [backend]
+    # Mount the host's ./proof into /srv/repo/proof so that
+    # scripts/run_proof.py (invoked via `docker compose run --rm test …`)
+    # writes its generated artifacts back to the host. The verifier on the
+    # host (scripts/verify-proof-artifacts.sh) reads proof/ on disk, so the
+    # volume mount closes the build/proof/verify cycle without baking
+    # runtime artifacts into the image.
+    volumes:
+      - ./proof:/srv/repo/proof
     command: ["tail", "-f", "/dev/null"]
     healthcheck:
       # Smoke-level — confirms Playwright + pytest are importable inside the

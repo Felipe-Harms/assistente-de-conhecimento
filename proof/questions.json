@@ -1,0 +1,110 @@
+{
+  "metadata": {
+    "version": "2026-08-17",
+    "purpose": "REQ-005 acceptance question set for the demo corpus under data/corpus/.",
+    "expected_question_count_min": 10,
+    "expected_question_count_max": 20,
+    "expected_positive_min": 8,
+    "expected_negative_min": 2,
+    "language": "en",
+    "scoring": "Each positive question must produce status=answered with at least one citation. Each negative question must produce status=refused with insufficient_evidence. The corpus-index.json and source-map.json written by scripts/run_proof.py reflect the actual retrieval state."
+  },
+  "questions": [
+    {
+      "id": "Q01",
+      "category": "positive",
+      "topic": "cat-care",
+      "question": "How should I feed my cat?",
+      "expected_status": "answered",
+      "expected_topic_keywords": ["protein", "carnivore", "wet food"]
+    },
+    {
+      "id": "Q02",
+      "category": "positive",
+      "topic": "cat-care",
+      "question": "What health care does a cat need?",
+      "expected_status": "answered",
+      "expected_topic_keywords": ["vaccine", "vet", "health"]
+    },
+    {
+      "id": "Q03",
+      "category": "positive",
+      "topic": "dog-adoption",
+      "question": "What should I consider before adopting a dog?",
+      "expected_status": "answered",
+      "expected_topic_keywords": ["space", "energy", "lifestyle"]
+    },
+    {
+      "id": "Q04",
+      "category": "positive",
+      "topic": "indoor-herb-garden",
+      "question": "What kind of pot is best for indoor herbs?",
+      "expected_status": "answered",
+      "expected_topic_keywords": ["drainage", "terra cotta", "pot"]
+    },
+    {
+      "id": "Q05",
+      "category": "positive",
+      "topic": "open-source-licenses",
+      "question": "What are the most common permissive open source licenses?",
+      "expected_status": "answered",
+      "expected_topic_keywords": ["permissive", "MIT", "Apache"]
+    },
+    {
+      "id": "Q06",
+      "category": "positive",
+      "topic": "python-uvtool",
+      "question": "How do I install uvtool?",
+      "expected_status": "answered",
+      "expected_topic_keywords": ["install", "pip", "uvtool"]
+    },
+    {
+      "id": "Q07",
+      "category": "positive",
+      "topic": "fermentation-basics",
+      "question": "What are common fermented foods?",
+      "expected_status": "answered",
+      "expected_topic_keywords": ["sauerkraut", "kimchi", "yogurt", "kefir", "sourdough"]
+    },
+    {
+      "id": "Q08",
+      "category": "positive",
+      "topic": "home-fitness-routine",
+      "question": "How do I put together a home fitness routine?",
+      "expected_status": "answered",
+      "expected_topic_keywords": ["exercise", "routine", "fitness"]
+    },
+    {
+      "id": "Q09",
+      "category": "negative",
+      "topic": "off-corpus",
+      "question": "What is the exchange rate between USD and BRL today?",
+      "expected_status": "refused",
+      "expected_topic_keywords": []
+    },
+    {
+      "id": "Q10",
+      "category": "negative",
+      "topic": "off-corpus",
+      "question": "How do I configure a Kubernetes cluster?",
+      "expected_status": "refused",
+      "expected_topic_keywords": []
+    },
+    {
+      "id": "Q11",
+      "category": "negative",
+      "topic": "off-corpus",
+      "question": "What is the capital of Mongolia?",
+      "expected_status": "refused",
+      "expected_topic_keywords": []
+    },
+    {
+      "id": "Q12",
+      "category": "negative",
+      "topic": "off-corpus",
+      "question": "Who won the last Brazilian national football championship?",
+      "expected_status": "refused",
+      "expected_topic_keywords": []
+    }
+  ]
+}

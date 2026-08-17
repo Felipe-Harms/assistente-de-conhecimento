@@ -31,7 +31,16 @@ COPY db /srv/repo/db
 COPY scripts /srv/repo/scripts
 COPY data /srv/repo/data
 COPY data /srv/data
-COPY proof /srv/repo/proof
+# Mirror the build-time Dockerfile into the image so the acceptance
+# contract test (tests/acceptance/test_proof_build_contract.py) can read
+# it back at runtime and assert that no `COPY proof …` line ever
+# regresses into the image.
+COPY test/Dockerfile /srv/repo/test/Dockerfile
+# NOTE: `proof/` is intentionally NOT baked into the image. It is a
+# runtime artifact produced by scripts/run_proof.py, and the docker
+# compose `test` service mounts the host's ./proof into /srv/repo/proof
+# so the verifier on the host can read the generated artifacts after
+# `scripts/run-proof.sh` runs.
 
 # Both /srv/api (so `from app.main import ...` works) and /srv (so
 # `from tests.security.test_auth import ...` works) need to be on the path.

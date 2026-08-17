@@ -66,7 +66,16 @@ data/*
 # === Internal project artifacts (never public) ===
 .wolfpack/
 backups/
-proof/
+# proof/ holds the REQ-005 acceptance artifacts. Canonical content
+# (questions.json, gaps.md, .gitkeep) is tracked; runtime-generated
+# artifacts (results.json, results.md, corpus-index.json, source-map.json,
+# source-map.md) are gitignored — they are produced by
+# scripts/run_proof.py inside the test container and surfaced to the
+# host via the docker-compose `test` volume mount on ./proof.
+proof/*
+!proof/.gitkeep
+!proof/questions.json
+!proof/gaps.md
 
 # === Backup files (any prior cycle) ===
 *.bak

@@ -30,6 +30,11 @@ curl -fsS http://127.0.0.1:8080/healthz-ui  # probe interno da UI
 docker compose exec api curl -fsS \
    http://127.0.0.1:8000/healthz          # probe interno da API
 
+# Gera os artefatos de prova REQ-005 (ingest do corpus + 12 perguntas de
+# aceitação + respostas citadas + lacunas). Requer a stack ativa.
+# Popula o diretório `proof/` no host (via volume mount no serviço `test`).
+./scripts/run-proof.sh
+
 # Executa os smoke tests de segurança:
 docker compose run --rm test
 
