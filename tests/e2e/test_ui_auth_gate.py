@@ -125,7 +125,7 @@ def test_bearer_header_forwarded_on_query(page: Page) -> None:
     page.goto(UI_URL, wait_until="networkidle")
     # Drop a fake token into localStorage directly so we don't depend on
     # the panel workflow for this assertion.
-    page.evaluate("window.localStorage.setItem('upworkkb.bearer.v1', 'token-XYZ')")
+    page.evaluate("window.localStorage.setItem('upworkkb.bearer.v1', 'tok-XYZ')")
     page.reload(wait_until="networkidle")
     # The page now uses the token on every fetch. Trigger a query.
     page.wait_for_function(

@@ -99,7 +99,7 @@ def test_keyboard_shortcut_submits(populated_page: Page) -> None:
 
 
 def test_clear_button_resets_state(populated_page: Page) -> None:
-    populated_page.locator("#question").fill("Anything on-topic here?")
+    populated_page.locator("#question").fill("What core vaccinations does a newly adopted dog need?")
     populated_page.locator("#ask").click()
     expect(populated_page.locator("#answer-state")).to_have_attribute(
         "data-state", "answered", timeout=15_000
