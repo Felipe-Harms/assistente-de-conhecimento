@@ -76,6 +76,27 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: docker compose config --quiet
 
+      # The `services: postgres` container starts in parallel with the job
+      # and GH Actions does not wait for its healthcheck before running
+      # steps. A fresh pgvector volume needs a few seconds for the cluster
+      # to accept connections; without this wait, the integration /
+      # acceptance suites hit `db: down` on /readyz.
+      - name: "wait for services: postgres"
+        run: |
+          for i in $(seq 1 60); do
+            if (echo > /dev/tcp/localhost/5432) 2>/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "postgres not reachable on localhost:5432 within 60s"
+          exit 1
+
+      # `test_proof_build_contract.py` is a build-time contract that
+      # asserts on `/srv/repo/...` paths inside the test container. It is
+      # meant to run via `docker compose run --rm test pytest
+      # tests/acceptance` — not on the runner — so exclude it from the
+      # runner pytest step.
       - name: pytest (security + integration + acceptance + unit)
         working-directory: ${{ github.workspace }}
         run: |
@@ -83,7 +104,8 @@ jobs:
             tests/unit \
             tests/security \
             tests/integration \
-            tests/acceptance
+            tests/acceptance \
+            --ignore=tests/acceptance/test_proof_build_contract.py
 
       - name: scripts/run-proof.sh (REQ-005)
         working-directory: ${{ github.workspace }}
