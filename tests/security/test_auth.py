@@ -44,7 +44,7 @@ def test_auth_enabled_with_correct_token_allows() -> None:
     out = check_bearer(
         enabled=True,
         expected_token="real-token",
-        presented_header="Bearer real",
+        presented_header="Bearer real-token",
         request_path="/v1/embeddings",
     )
     assert out.allowed is True
@@ -119,7 +119,7 @@ def test_api_protects_v1_with_auth(monkeypatch) -> None:
         r = client.post(
             "/v1/embeddings",
             json={"input": ["hi"]},
-            headers={"Authorization": "Bearer realxyz"},
+            headers={"Authorization": "Bearer real-token-xyz"},
         )
         assert r.status_code == 200, r.text
 
