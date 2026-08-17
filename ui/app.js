@@ -214,7 +214,7 @@
   };
 
   var LOCALE_KEY = "upworkkb.locale.v1";
-  var DEFAULT_LOCALE = "pt-BR";
+  var DEFAULT_LOCALE = "en";
 
   function readLocale() {
     try {
