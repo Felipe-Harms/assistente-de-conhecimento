@@ -31,7 +31,20 @@ from fastapi.testclient import TestClient
 # Question set is canonically hosted in proof/questions.json — this is
 # the same fixture the production proof runner reads, so the
 # acceptance contract is checked in lockstep with the proof cycle.
-QUESTIONS_PATH = Path(__file__).resolve().parents[2] / "proof" / "questions.json"
+#
+# Path resolution handles two layouts:
+#   - host / runner-side pytest: parents[2] is the repo root, so
+#     proof/ resolves there (CI step 11 runs pytest directly).
+#   - test container (docker compose run --rm test pytest): parents[2]
+#     is /srv, but the test image stages the repo at /srv/repo, so
+#     proof/ is volume-mounted at /srv/repo/proof rather than baked in.
+_QUESTIONS_CANDIDATES = (
+    Path(__file__).resolve().parents[2] / "proof" / "questions.json",
+    Path("/srv/repo/proof/questions.json"),
+)
+QUESTIONS_PATH = next(
+    (p for p in _QUESTIONS_CANDIDATES if p.exists()), _QUESTIONS_CANDIDATES[0]
+)
 CORPUS_DIR = Path(__file__).resolve().parents[2] / "data" / "corpus"
 
 
